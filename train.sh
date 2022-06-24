@@ -15,7 +15,7 @@ python train.py \
     --task $TASK \
     --gpu_ids 0 \
     --checkpoints_dir $CKPTROOT \
-    --batchSize 4 \
+    --batchSize 2 \
     --dataset_mode $DATA \
     --croot $CROOT \
     --sroot $SROOT \
@@ -30,3 +30,6 @@ python train.py \
     --niter_decay 100 \
     --lambda_vgg 20 \
     --lambda_feat 10
+#    --which_epoch 38 \
+#    --continue_train
+

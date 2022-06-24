@@ -33,7 +33,7 @@ class Pix2PixTrainer():
         self.optimizer_G.zero_grad()
         g_losses, generated = self.pix2pix_model(data, mode='generator')
         g_loss = sum(g_losses.values()).mean()
-        g_loss.backward()
+        self.optimizer_G.backward(g_loss)
         self.optimizer_G.step()
         self.g_losses = g_losses
         self.generated = generated
@@ -42,7 +42,8 @@ class Pix2PixTrainer():
         self.optimizer_D.zero_grad()
         d_losses = self.pix2pix_model(data, mode='discriminator')
         d_loss = sum(d_losses.values()).mean()
-        d_loss.backward()
+        self.optimizer_D.backward(d_loss)
+        # d_loss.backward()
         self.optimizer_D.step()
         self.d_losses = d_losses
 

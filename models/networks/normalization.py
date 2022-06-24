@@ -1,7 +1,10 @@
 import re
+
+import jittor
 import jittor.nn as nn
 # from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
 from .spectral_norm import spectral_norm
+from infastructure import Module
 
 
 # Returns a function that creates a standard normalization function
@@ -26,7 +29,7 @@ def get_norm_layer(opt, norm_type='instance'):
         # since it has no effect after normalization
         if getattr(layer, 'bias', None) is not None:
             delattr(layer, 'bias')
-            layer.register_parameter('bias', None)
+            layer.bias = None  # TODO: is this the proper translation?
 
         if subnorm_type == 'batch':
             norm_layer = nn.BatchNorm2d(get_out_channel(layer), affine=True)
@@ -44,7 +47,7 @@ def get_norm_layer(opt, norm_type='instance'):
 
 
 # Creates FADE normalization layer based on the given configuration
-class FADE(nn.Module):
+class FADE(Module):
     def __init__(self, config_text, norm_nc, label_nc):
         super().__init__()
 
@@ -56,8 +59,8 @@ class FADE(nn.Module):
         if param_free_norm_type == 'instance':
             self.param_free_norm = nn.InstanceNorm2d(norm_nc, affine=False)
         elif param_free_norm_type == 'syncbatch':
-            assert False
-            # self.param_free_norm = SynchronizedBatchNorm2d(norm_nc, affine=False)
+            # assert False
+            self.param_free_norm = nn.BatchNorm2d(norm_nc, affine=False)
         elif param_free_norm_type == 'batch':
             self.param_free_norm = nn.BatchNorm2d(norm_nc, affine=False)
         else:

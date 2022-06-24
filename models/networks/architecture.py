@@ -11,6 +11,7 @@ from .spectral_norm import spectral_norm
 from models.networks.normalization import FADE
 # from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
 from infastructure import Module
+from icecream import ic
 
 
 # ResNet block that uses FADE.
@@ -26,23 +27,27 @@ class FADEResnetBlock(Module):
         # attributes
         self.learned_shortcut = (fin != fout)
         fmiddle = fin
-
+        ic()
         # create conv layers
         self.conv_0 = nn.Conv2d(fin, fmiddle, kernel_size=3, padding=1)
         self.conv_1 = nn.Conv2d(fmiddle, fout, kernel_size=3, padding=1)
         if self.learned_shortcut:
             self.conv_s = nn.Conv2d(fin, fout, kernel_size=1, bias=False)
-
+        ic()
         # apply spectral norm if specified
         if 'spectral' in opt.norm_G:
+            ic()
             self.conv_0 = spectral_norm(self.conv_0)
+            ic()
             self.conv_1 = spectral_norm(self.conv_1)
+            ic()
             if self.learned_shortcut:
                 self.conv_s = spectral_norm(self.conv_s)
-
+        ic()
         # define normalization layers
         fade_config_str = opt.norm_G.replace('spectral', '')
         self.norm_0 = FADE(fade_config_str, fin, fin)
+        ic()
         self.norm_1 = FADE(fade_config_str, fmiddle, fmiddle)
         if self.learned_shortcut:
             self.norm_s = FADE(fade_config_str, fin, fin)
@@ -76,38 +81,46 @@ class StreamResnetBlock(Module):
         # attributes
         self.learned_shortcut = (fin != fout)
         fmiddle = fin
-
+        ic()
         # create conv layers
         self.conv_0 = nn.Conv2d(fin, fmiddle, kernel_size=3, padding=1)
+        ic()
         self.conv_1 = nn.Conv2d(fmiddle, fout, kernel_size=3, padding=1)
+        ic()
         if self.learned_shortcut:
             self.conv_s = nn.Conv2d(fin, fout, kernel_size=1, bias=False)
-
+        ic()
         # apply spectral norm if specified
         if 'spectral' in opt.norm_S:
             self.conv_0 = spectral_norm(self.conv_0)
+            ic()
             self.conv_1 = spectral_norm(self.conv_1)
+            ic()
             if self.learned_shortcut:
                 self.conv_s = spectral_norm(self.conv_s)
-
+        ic()
         # define normalization layers
         subnorm_type = opt.norm_S.replace('spectral', '')
+        ic()
         if subnorm_type == 'batch':
             self.norm_layer_in = nn.BatchNorm2d(fin, affine=True)
             self.norm_layer_out= nn.BatchNorm2d(fout, affine=True)
             if self.learned_shortcut:
                 self.norm_layer_s = nn.BatchNorm2d(fout, affine=True)
+            ic()
         elif subnorm_type == 'syncbatch':
             # self.norm_layer_in = nn.BatchNorm2d(fin, affine=True)
             # self.norm_layer_out= nn.BatchNorm2d(fout, affine=True)
             # if self.learned_shortcut:
             #     self.norm_layer_s = nn.BatchNorm2d(fout, affine=True)
+            ic()
             assert False
         elif subnorm_type == 'instance':
             self.norm_layer_in = nn.InstanceNorm2d(fin, affine=False)
             self.norm_layer_out= nn.InstanceNorm2d(fout, affine=False)
             if self.learned_shortcut:
                 self.norm_layer_s = nn.InstanceNorm2d(fout, affine=False)
+            ic()
         else:
             raise ValueError('normalization layer %s is not recognized' % subnorm_type)
 

@@ -7,7 +7,7 @@ from jittor.misc import normalize
 from typing import Any, Optional, TypeVar
 import jittor.nn as nn
 from jittor.nn import Module
-
+from IPython import  embed
 
 class SpectralNorm:
     # Invariant before and after each forward call:
@@ -106,7 +106,8 @@ class SpectralNorm:
 
     def __call__(self, module: Module, inputs: Any) -> None:
         # self.compute_weight(module, do_power_iteration=module.is_training())
-        setattr(module, self.name, self.compute_weight(module, do_power_iteration=module.is_train))
+        # embed()
+        setattr(module, self.name, self.compute_weight(module, do_power_iteration=module.is_training()))
 
 
     def _solve_v_and_rescale(self, weight_mat, u, target_sigma):

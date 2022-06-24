@@ -86,8 +86,11 @@ class Pix2PixModel(Module):
     def initialize_networks(self, opt):
         print("initing")
         netG = networks.define_G(opt)
+        print("G")
         netD = networks.define_D(opt) if opt.isTrain else None
+        print("D")
         netE = networks.define_E(opt) if opt.use_vae else None
+        print("E")
 
         if not opt.isTrain or opt.continue_train:
             netG = util.load_network(netG, 'G', opt.which_epoch, opt)
@@ -105,10 +108,10 @@ class Pix2PixModel(Module):
         # move to GPU and change data types
         if self.opt.task == 'SIS':
             data['label'] = data['label'].long()
-        if self.use_gpu():
-            data['label'] = data['label'].cuda()
-            data['instance'] = data['instance'].cuda()
-            data['image'] = data['image'].cuda()
+        # if self.use_gpu():
+        #     data['label'] = data['label']
+        #     data['instance'] = data['instance']
+        #     data['image'] = data['image']
 
         # create one-hot label map for SIS
         if self.opt.task == 'SIS':
@@ -118,7 +121,7 @@ class Pix2PixModel(Module):
                 else self.opt.label_nc
             input_label = jt.zeros((bs, nc, h, w), dtype=jt.float32)
             # input_label = self.FloatTensor(bs, nc, h, w).zero_()
-            input_semantics = input_label.scatter_(1, label_map, 1.0)
+            input_semantics = input_label.scatter_(1, label_map, jt.float32(1.0))
 
             # concatenate instance map if it exists
             if not self.opt.no_instance:
@@ -170,7 +173,7 @@ class Pix2PixModel(Module):
         with jt.no_grad():
             fake_image, _ = self.generate_fake(content, style)
             fake_image = fake_image.detach()
-            fake_image.requires_grad_()
+            fake_image.start_grad()
 
         if self.opt.task == 'SIS':
             pred_fake, pred_real = self.discriminate(fake_image, style, content)
@@ -255,7 +258,7 @@ class Pix2PixModel(Module):
     def reparameterize(self, mu, logvar):
         std = jt.exp(0.5 * logvar)
         eps = jt.randn_like(std)
-        return jt.matmul(eps, std) + mu
+        return eps * std + mu
 
     def use_gpu(self):
         return len(self.opt.gpu_ids) > 0

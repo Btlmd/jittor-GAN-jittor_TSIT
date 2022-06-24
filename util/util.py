@@ -176,9 +176,11 @@ def find_class_in_module(target_cls_name, module):
     target_cls_name = target_cls_name.replace('_', '').lower()
     clslib = importlib.import_module(module)
     cls = None
+    print("finding", target_cls_name)
     for name, clsobj in clslib.__dict__.items():
         if name.lower() == target_cls_name:
             cls = clsobj
+    print("found", target_cls_name)
 
     if cls is None:
         print("In %s, there should be a class whose name matches %s in lowercase without underscore(_)" % (module, target_cls_name))
@@ -200,6 +202,11 @@ def load_network(net, label, epoch, opt):
     save_dir = os.path.join(opt.checkpoints_dir, opt.name)
     save_path = os.path.join(save_dir, save_filename)
     weights = jt.load(save_path)
+    # try:
+    #     weights = jt.load(save_path)
+    # except:
+    #     import torch
+    #     weights = torch.load(save_path)
     net.load_state_dict(weights)
     return net
 

@@ -1,3 +1,4 @@
+import IPython
 import jittor.nn as nn
 import numpy as np
 # import torch.nn.functional as F
@@ -28,7 +29,9 @@ class MultiscaleDiscriminator(BaseNetwork):
 
         for i in range(opt.num_D):
             subnetD = self.create_single_discriminator(opt)
-            self.add_module('discriminator_%d' % i, subnetD)
+            # self.add_module('discriminator_%d' % i, subnetD)
+            disc_name = "discriminator_%d" % i
+            exec(f"self.{disc_name} = subnetD")
 
     def create_single_discriminator(self, opt):
         subarch = opt.netD_subarch
@@ -39,8 +42,9 @@ class MultiscaleDiscriminator(BaseNetwork):
         return netD
 
     def downsample(self, input):
+        # IPython.embed()
         return nn.avg_pool2d(input, kernel_size=3,
-                            stride=2, padding=[1, 1],
+                            stride=2, padding=(1, 1),
                             count_include_pad=False)
 
     # Returns list of lists of discriminator outputs.
@@ -48,7 +52,9 @@ class MultiscaleDiscriminator(BaseNetwork):
     def forward(self, input):
         result = []
         get_intermediate_features = not self.opt.no_ganFeat_loss
-        for name, D in self.named_children():
+        # chs = self.named_modules()
+        # IPython.embed()
+        for name, D in self._modules.items():
             out = D(input)
             if not get_intermediate_features:
                 out = [out]
@@ -79,7 +85,7 @@ class NLayerDiscriminator(BaseNetwork):
 
         norm_layer = get_norm_layer(opt, opt.norm_D)
         sequence = [[nn.Conv2d(input_nc, nf, kernel_size=kw, stride=2, padding=padw),
-                     nn.LeakyReLU(0.2, False)]]
+                     nn.LeakyReLU(0.2)]]
 
         for n in range(1, opt.n_layers_D):
             nf_prev = nf
@@ -87,14 +93,15 @@ class NLayerDiscriminator(BaseNetwork):
             stride = 1 if n == 3 else 2
             sequence += [[norm_layer(nn.Conv2d(nf_prev, nf, kernel_size=kw,
                                                stride=stride, padding=padw)),
-                          nn.LeakyReLU(0.2, False)
+                          nn.LeakyReLU(0.2)
                           ]]
 
         sequence += [[nn.Conv2d(nf, 1, kernel_size=kw, stride=1, padding=padw)]]
 
         # We divide the layers into groups to extract intermediate layer outputs
         for n in range(len(sequence)):
-            self.add_module('model' + str(n), nn.Sequential(*sequence[n]))
+            _sub_model_name = 'model' + str(n)
+            exec(f"self.{_sub_model_name} = nn.Sequential(*sequence[n])")
 
     def compute_D_input_nc(self, opt):
         input_nc = opt.output_nc
