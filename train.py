@@ -34,6 +34,8 @@ iter_counter = IterationCounter(opt, len(dataloader))
 # visualizer = Visualizer(opt)
 
 print(3)
+trainer.save('initial')
+exit()
 for epoch in tqdm(iter_counter.training_epochs()):
     iter_counter.record_epoch_start(epoch)
     for i, data_i in enumerate(tqdm(dataloader), start=iter_counter.epoch_iter):

@@ -63,7 +63,7 @@ def tensor2im(image_tensor, imtype=np.uint8, normalize=True, tile=False):
             image_numpy.append(tensor2im(image_tensor[i], imtype, normalize))
         return image_numpy
 
-    if image_tensor.dim() == 4:
+    if image_tensor.ndim == 4:
         # transform each image in the batch
         images_np = []
         for b in range(image_tensor.size(0)):
@@ -77,9 +77,9 @@ def tensor2im(image_tensor, imtype=np.uint8, normalize=True, tile=False):
         else:
             return images_np
 
-    if image_tensor.dim() == 2:
+    if image_tensor.ndim == 2:
         image_tensor = image_tensor.unsqueeze(0)
-    image_numpy = image_tensor.detach().cpu().float().numpy()
+    image_numpy = image_tensor.detach().data
     if normalize:
         image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0
     else:
@@ -92,7 +92,7 @@ def tensor2im(image_tensor, imtype=np.uint8, normalize=True, tile=False):
 
 # Converts a one-hot tensor into a colorful label map
 def tensor2label(label_tensor, n_label, imtype=np.uint8, tile=False):
-    if label_tensor.dim() == 4:
+    if label_tensor.ndim == 4:
         # transform each image in the batch
         images_np = []
         for b in range(label_tensor.size(0)):
@@ -107,13 +107,14 @@ def tensor2label(label_tensor, n_label, imtype=np.uint8, tile=False):
             images_np = images_np[0]
             return images_np
 
-    if label_tensor.dim() == 1:
+    if label_tensor.ndim == 1:
         return np.zeros((64, 64, 3), dtype=np.uint8)
     if n_label == 0:
         return tensor2im(label_tensor, imtype)
-    label_tensor = label_tensor.cpu().float()
+    label_tensor = label_tensor.data.float()
     if label_tensor.size()[0] > 1:
         label_tensor = label_tensor.max(0, keepdim=True)[1]
+    assert False
     label_tensor = Colorize(n_label)(label_tensor)
     label_numpy = np.transpose(label_tensor.numpy(), (1, 2, 0))
     result = label_numpy.astype(imtype)
@@ -190,7 +191,7 @@ def find_class_in_module(target_cls_name, module):
 
 
 def save_network(net, label, epoch, opt):
-    save_filename = '%s_net_%s.pth' % (epoch, label)
+    save_filename = '%s_net_%s.pkl' % (epoch, label)
     save_path = os.path.join(opt.checkpoints_dir, opt.name, save_filename)
     jt.save(net.state_dict(), save_path)
     # if len(opt.gpu_ids) and torch.cuda.is_available():
@@ -198,15 +199,16 @@ def save_network(net, label, epoch, opt):
 
 
 def load_network(net, label, epoch, opt):
-    save_filename = '%s_net_%s.pth' % (epoch, label)
+    save_filename = '%s_net_%s.pickle' % (epoch, label)
     save_dir = os.path.join(opt.checkpoints_dir, opt.name)
     save_path = os.path.join(save_dir, save_filename)
-    weights = jt.load(save_path)
-    # try:
-    #     weights = jt.load(save_path)
-    # except:
-    #     import torch
-    #     weights = torch.load(save_path)
+
+    # weights = jt.load(save_path)
+
+    # pickle loader
+    with open(save_path, "rb") as f:
+        weights = pickle.load(f)
+
     net.load_state_dict(weights)
     return net
 
@@ -261,19 +263,19 @@ def labelcolormap(N):
     return cmap
 
 
-class Colorize(object):
-    def __init__(self, n=35):
-        self.cmap = labelcolormap(n)
-        self.cmap = torch.from_numpy(self.cmap[:n])
-
-    def __call__(self, gray_image):
-        size = gray_image.size()
-        color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
-
-        for label in range(0, len(self.cmap)):
-            mask = (label == gray_image[0]).cpu()
-            color_image[0][mask] = self.cmap[label][0]
-            color_image[1][mask] = self.cmap[label][1]
-            color_image[2][mask] = self.cmap[label][2]
-
-        return color_image
+# class Colorize(object):
+#     def __init__(self, n=35):
+#         self.cmap = labelcolormap(n)
+#         self.cmap = torch.from_numpy(self.cmap[:n])
+#
+#     def __call__(self, gray_image):
+#         size = gray_image.size()
+#         color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
+#
+#         for label in range(0, len(self.cmap)):
+#             mask = (label == gray_image[0]).cpu()
+#             color_image[0][mask] = self.cmap[label][0]
+#             color_image[1][mask] = self.cmap[label][1]
+#             color_image[2][mask] = self.cmap[label][2]
+#
+#         return color_image
