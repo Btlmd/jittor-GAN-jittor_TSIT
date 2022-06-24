@@ -1,6 +1,7 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+# import torch
+import jittor.nn as nn
+# import torch.nn.functional as F
+import jittor as jt
 from models.networks.base_network import BaseNetwork
 from models.networks.normalization import get_norm_layer
 from models.networks.architecture import ResnetBlock as ResnetBlock
@@ -88,17 +89,17 @@ class TSITGenerator(BaseNetwork):
         if self.opt.use_vae:
             # we sample z from unit normal and reshape the tensor
             if z is None:
-                z = torch.randn(content.size(0), self.opt.z_dim,
-                                dtype=torch.float32, device=content.get_device())
+                z = jt.randn(content.size(0), self.opt.z_dim,
+                                dtype=jt.float32, device=content.get_device())
             x = self.fc(z)
             x = x.view(-1, 16 * self.opt.ngf, self.sh, self.sw)
         else:
             if self.opt.task == 'SIS':
                 # following SPADE, downsample segmap and run convolution for SIS
-                x = F.interpolate(content, size=(self.sh, self.sw))
+                x = nn.interpolate(content, size=(self.sh, self.sw))
             else:
                 # sample random noise
-                x = torch.randn(content.size(0), 3, self.sh, self.sw, dtype=torch.float32, device=content.get_device())
+                x = jt.randn(content.size(0), 3, self.sh, self.sw, dtype=jt.float32, device=content.get_device())
             x = self.fc(x)
 
         x = self.fadain_alpha(x, sft7, alpha=self.opt.alpha) if not self.opt.no_ss else x
@@ -134,8 +135,8 @@ class TSITGenerator(BaseNetwork):
             x = self.up_4(x, ft0)
             x = self.up(x)
 
-        x = self.conv_img(F.leaky_relu(x, 2e-1))
-        x = F.tanh(x)
+        x = self.conv_img(nn.leaky_relu(x, 2e-1))
+        x = nn.tanh(x)
         return x
 
 

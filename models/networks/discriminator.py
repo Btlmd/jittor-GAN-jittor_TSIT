@@ -1,6 +1,6 @@
-import torch.nn as nn
+import jittor.nn as nn
 import numpy as np
-import torch.nn.functional as F
+# import torch.nn.functional as F
 from models.networks.base_network import BaseNetwork
 from models.networks.normalization import get_norm_layer
 import util.util as util
@@ -39,7 +39,7 @@ class MultiscaleDiscriminator(BaseNetwork):
         return netD
 
     def downsample(self, input):
-        return F.avg_pool2d(input, kernel_size=3,
+        return nn.avg_pool2d(input, kernel_size=3,
                             stride=2, padding=[1, 1],
                             count_include_pad=False)
 

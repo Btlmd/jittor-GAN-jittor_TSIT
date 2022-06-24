@@ -1,7 +1,7 @@
 import re
-import torch.nn as nn
-from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
-import torch.nn.utils.spectral_norm as spectral_norm
+import jittor.nn as nn
+# from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
+from .spectral_norm import spectral_norm
 
 
 # Returns a function that creates a standard normalization function
@@ -31,7 +31,8 @@ def get_norm_layer(opt, norm_type='instance'):
         if subnorm_type == 'batch':
             norm_layer = nn.BatchNorm2d(get_out_channel(layer), affine=True)
         elif subnorm_type == 'syncbatch':
-            norm_layer = SynchronizedBatchNorm2d(get_out_channel(layer), affine=True)
+            assert False
+            # norm_layer = SynchronizedBatchNorm2d(get_out_channel(layer), affine=True)
         elif subnorm_type == 'instance':
             norm_layer = nn.InstanceNorm2d(get_out_channel(layer), affine=False)
         else:
@@ -55,7 +56,8 @@ class FADE(nn.Module):
         if param_free_norm_type == 'instance':
             self.param_free_norm = nn.InstanceNorm2d(norm_nc, affine=False)
         elif param_free_norm_type == 'syncbatch':
-            self.param_free_norm = SynchronizedBatchNorm2d(norm_nc, affine=False)
+            assert False
+            # self.param_free_norm = SynchronizedBatchNorm2d(norm_nc, affine=False)
         elif param_free_norm_type == 'batch':
             self.param_free_norm = nn.BatchNorm2d(norm_nc, affine=False)
         else:

@@ -3,12 +3,13 @@
 # import torch.nn.functional as F
 # import torchvision
 # import torch.nn.utils.spectral_norm as spectral_norm
-import jt
-import jt.nn as nn
+import jittor
+import jittor.nn as nn
+import jittor_utils.misc
 
 from .spectral_norm import spectral_norm
 from models.networks.normalization import FADE
-from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
+# from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
 from infastructure import Module
 
 
@@ -66,10 +67,10 @@ class FADEResnetBlock(Module):
         return x_s
 
     def actvn(self, x):
-        return F.leaky_relu(x, 2e-1)
+        return nn.leaky_relu(x, 2e-1)
 
 
-class StreamResnetBlock(nn.Module):
+class StreamResnetBlock(Module):
     def __init__(self, fin, fout, opt):
         super().__init__()
         # attributes
@@ -97,10 +98,11 @@ class StreamResnetBlock(nn.Module):
             if self.learned_shortcut:
                 self.norm_layer_s = nn.BatchNorm2d(fout, affine=True)
         elif subnorm_type == 'syncbatch':
-            self.norm_layer_in = SynchronizedBatchNorm2d(fin, affine=True)
-            self.norm_layer_out= SynchronizedBatchNorm2d(fout, affine=True)
-            if self.learned_shortcut:
-                self.norm_layer_s = SynchronizedBatchNorm2d(fout, affine=True)
+            # self.norm_layer_in = nn.BatchNorm2d(fin, affine=True)
+            # self.norm_layer_out= nn.BatchNorm2d(fout, affine=True)
+            # if self.learned_shortcut:
+            #     self.norm_layer_s = nn.BatchNorm2d(fout, affine=True)
+            assert False
         elif subnorm_type == 'instance':
             self.norm_layer_in = nn.InstanceNorm2d(fin, affine=False)
             self.norm_layer_out= nn.InstanceNorm2d(fout, affine=False)
@@ -127,7 +129,7 @@ class StreamResnetBlock(nn.Module):
         return x_s
 
     def actvn(self, x):
-        return F.leaky_relu(x, 2e-1)
+        return nn.leaky_relu(x, 2e-1)
 
 
 # ResNet block used in pix2pixHD
