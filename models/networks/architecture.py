@@ -7,6 +7,8 @@ import IPython
 import jittor
 import jittor.nn as nn
 import jittor_utils.misc
+from jittor.models import vgg19
+
 
 from .spectral_norm import spectral_norm
 from models.networks.normalization import FADE
@@ -157,7 +159,7 @@ class ResnetBlock(Module):
 class VGG19(Module):
     def __init__(self, requires_grad=False):
         super().__init__()
-        vgg_pretrained_features = jt.models.vgg19(pretrained=True).features
+        vgg_pretrained_features = vgg19(pretrained=True).features
         self.slice1 = nn.Sequential()
         self.slice2 = nn.Sequential()
         self.slice3 = nn.Sequential()

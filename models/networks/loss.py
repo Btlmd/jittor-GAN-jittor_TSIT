@@ -1,11 +1,11 @@
 # import torch
 # import torch.nn as nn
 # import torch.nn.functional as F
-# from models.networks.architecture import VGG19
+from models.networks.architecture import VGG19
 
 import jittor as jt
 import jittor.nn as nn
-from jittor.models import vgg19
+# from jittor.models import vgg19
 from infastructure import Module
 
 
@@ -106,13 +106,14 @@ class GANLoss(Module):
 class VGGLoss(Module):
     def __init__(self, gpu_ids):
         super(VGGLoss, self).__init__()
-        self.vgg = vgg19()
+        self.vgg = VGG19()
         self.criterion = nn.L1Loss()
         self.weights = [1.0 / 32, 1.0 / 16, 1.0 / 8, 1.0 / 4, 1.0]
 
     def forward(self, x, y):
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
         loss = 0
+        # print(len(x_vgg), "VGG")
         for i in range(len(x_vgg)):
             loss += self.weights[i] * self.criterion(x_vgg[i], y_vgg[i].detach())
         return loss
