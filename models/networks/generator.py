@@ -8,7 +8,6 @@ from models.networks.architecture import ResnetBlock as ResnetBlock
 from models.networks.architecture import FADEResnetBlock as FADEResnetBlock
 from models.networks.stream import Stream as Stream
 from models.networks.AdaIN.function import adaptive_instance_normalization as FAdaIN
-from icecream import ic
 
 
 class TSITGenerator(BaseNetwork):
@@ -24,17 +23,17 @@ class TSITGenerator(BaseNetwork):
 
     def __init__(self, opt):
         super().__init__()
-        print("1")
+        # print("1")
         self.opt = opt
-        print(2)
+        # print(2)
         nf = opt.ngf
-        print(3)
+        # print(3)
         self.content_stream = Stream(self.opt)
-        print(4)
+        # print(4)
         self.style_stream = Stream(self.opt) if not self.opt.no_ss else None
-        print(5)
+        # print(5)
         self.sw, self.sh = self.compute_latent_vector_size(opt)
-        print(6)
+        # print(6)
         if opt.use_vae:
             # In case of VAE, we will sample from random z vector
             self.fc = nn.Linear(opt.z_dim, 16 * nf * self.sw * self.sh)
@@ -42,24 +41,24 @@ class TSITGenerator(BaseNetwork):
             # Otherwise, we make the network deterministic by starting with
             # downsampled segmentation map (content) instead of random z
             self.fc = nn.Conv2d(self.opt.semantic_nc, 16 * nf, 3, padding=1)
-        ic()
+        # ic()
         self.head_0 = FADEResnetBlock(16 * nf, 16 * nf, opt)
-        ic()
+        # ic()
         self.G_middle_0 = FADEResnetBlock(16 * nf, 16 * nf, opt)
         self.G_middle_1 = FADEResnetBlock(16 * nf, 16 * nf, opt)
-        ic()
+        # ic()
         self.up_0 = FADEResnetBlock(16 * nf, 8 * nf, opt)
         self.up_1 = FADEResnetBlock(8 * nf, 4 * nf, opt)
         self.up_2 = FADEResnetBlock(4 * nf, 2 * nf, opt)
         self.up_3 = FADEResnetBlock(2 * nf, 1 * nf, opt)
-        ic()
+        # ic()
 
         final_nc = nf
 
         if opt.num_upsampling_layers == 'most':
             self.up_4 = FADEResnetBlock(1 * nf, nf // 2, opt)
             final_nc = nf // 2
-        ic()
+        # ic()
         self.conv_img = nn.Conv2d(final_nc, 3, 3, padding=1)
 
         self.up = nn.Upsample(scale_factor=2)
@@ -88,15 +87,10 @@ class TSITGenerator(BaseNetwork):
         return t
 
     def forward(self, input, real, z=None):
-        # exit(-1)
-        # import IPython
-        # IPython.embed()
         content = input
         style =  real
         ft0, ft1, ft2, ft3, ft4, ft5, ft6, ft7 = self.content_stream(content)
         sft0, sft1, sft2, sft3, sft4, sft5, sft6, sft7 = self.style_stream(style) if not self.opt.no_ss else [None] * 8
-        # ic(ft0, ft1, ft2, ft3, ft4, ft5, ft6, ft7)
-        # ic(sft0, sft1, sft2, sft3, sft4, sft5, sft6, sft7)
         if self.opt.use_vae:
             # we sample z from unit normal and reshape the tensor
             if z is None:
@@ -112,11 +106,8 @@ class TSITGenerator(BaseNetwork):
                 # sample random noise
                 x = jt.randn(content.size(0), 3, self.sh, self.sw, dtype=jt.float32)
             x = self.fc(x)
-        ic(x)
         x = self.fadain_alpha(x, sft7, alpha=self.opt.alpha) if not self.opt.no_ss else x
-        ic("here", x)
         x = self.head_0(x, ft7)
-        ic(x)
 
         x = self.up(x)
         x = self.fadain_alpha(x, sft6, alpha=self.opt.alpha) if not self.opt.no_ss else x
@@ -150,7 +141,6 @@ class TSITGenerator(BaseNetwork):
 
         x = self.conv_img(nn.leaky_relu(x, 2e-1))
         x = jt.tanh(x)
-        ic(x)
         return x
 
 

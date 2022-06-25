@@ -4,7 +4,7 @@
 # import torchvision
 # import torch.nn.utils.spectral_norm as spectral_norm
 import IPython
-import jittor
+import jittor as jt
 import jittor.nn as nn
 import jittor_utils.misc
 
@@ -82,66 +82,53 @@ class StreamResnetBlock(Module):
         # attributes
         self.learned_shortcut = (fin != fout)
         fmiddle = fin
-        ic()
         # create conv layers
         self.conv_0 = nn.Conv2d(fin, fmiddle, kernel_size=3, padding=1)
-        ic()
         self.conv_1 = nn.Conv2d(fmiddle, fout, kernel_size=3, padding=1)
-        ic()
+
         if self.learned_shortcut:
             self.conv_s = nn.Conv2d(fin, fout, kernel_size=1, bias=False)
-        ic()
+
         # apply spectral norm if specified
         if 'spectral' in opt.norm_S:
             self.conv_0 = spectral_norm(self.conv_0)
-            ic()
+
             self.conv_1 = spectral_norm(self.conv_1)
-            ic()
+
             if self.learned_shortcut:
                 self.conv_s = spectral_norm(self.conv_s)
-        ic()
+
         # define normalization layers
         subnorm_type = opt.norm_S.replace('spectral', '')
-        ic()
         if subnorm_type == 'batch':
             self.norm_layer_in = nn.BatchNorm2d(fin, affine=True)
             self.norm_layer_out= nn.BatchNorm2d(fout, affine=True)
             if self.learned_shortcut:
                 self.norm_layer_s = nn.BatchNorm2d(fout, affine=True)
-            ic()
         elif subnorm_type == 'syncbatch':
             # self.norm_layer_in = nn.BatchNorm2d(fin, affine=True)
             # self.norm_layer_out= nn.BatchNorm2d(fout, affine=True)
             # if self.learned_shortcut:
             #     self.norm_layer_s = nn.BatchNorm2d(fout, affine=True)
-            ic()
             assert False
         elif subnorm_type == 'instance':
             self.norm_layer_in = nn.InstanceNorm2d(fin, affine=False)
             self.norm_layer_out= nn.InstanceNorm2d(fout, affine=False)
             if self.learned_shortcut:
                 self.norm_layer_s = nn.InstanceNorm2d(fout, affine=False)
-            ic()
         else:
             raise ValueError('normalization layer %s is not recognized' % subnorm_type)
 
     def forward(self, x):
         # IPython.embed()
         from icecream import ic
-        ic()
         ic(self.conv_0.weight, self.conv_0.bias, self.conv_0.weight_orig)
-        ic(x)
         x_s = self.shortcut(x)
-        ic(x)
 
         dx = self.actvn(self.norm_layer_in(self.conv_0(x)))
-        ic()
         ic(self.conv_0.weight, self.conv_0.bias, self.conv_0.weight_orig)
-        ic(dx)
         dx = self.actvn(self.norm_layer_out(self.conv_1(dx)))
-        ic(dx)
         out = x_s + dx
-        ic(out)
         return out
 
     def shortcut(self,x):
