@@ -3,6 +3,7 @@
 # import torch.nn.functional as F
 # import torchvision
 # import torch.nn.utils.spectral_norm as spectral_norm
+import IPython
 import jittor
 import jittor.nn as nn
 import jittor_utils.misc
@@ -125,13 +126,22 @@ class StreamResnetBlock(Module):
             raise ValueError('normalization layer %s is not recognized' % subnorm_type)
 
     def forward(self, x):
+        # IPython.embed()
+        from icecream import ic
+        ic()
+        ic(self.conv_0.weight, self.conv_0.bias, self.conv_0.weight_orig)
+        ic(x)
         x_s = self.shortcut(x)
+        ic(x)
 
         dx = self.actvn(self.norm_layer_in(self.conv_0(x)))
+        ic()
+        ic(self.conv_0.weight, self.conv_0.bias, self.conv_0.weight_orig)
+        ic(dx)
         dx = self.actvn(self.norm_layer_out(self.conv_1(dx)))
-
+        ic(dx)
         out = x_s + dx
-
+        ic(out)
         return out
 
     def shortcut(self,x):

@@ -8,7 +8,7 @@ DATA='landscape'
 CROOT='./datasets/landscape'
 SROOT='./datasets/landscape'
 CKPTROOT='./checkpoints'
-WORKER=1
+WORKER=4
 
 python train.py \
     --name $NAME \
@@ -25,7 +25,7 @@ python train.py \
     --use_vae \
     --alpha 1.0 \
     --display_freq 200 \
-    --save_epoch_freq 5 \
+    --save_epoch_freq 1 \
     --niter 100 \
     --niter_decay 100 \
     --lambda_vgg 20 \

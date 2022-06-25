@@ -8,6 +8,15 @@ from util.visualizer import Visualizer
 from util import html
 from tqdm import tqdm
 
+from IPython import embed
+
+def hook(module, input, output, kw=None):
+    # embed()
+    pass
+
+import jittor as jt
+
+jt.flags.auto_mixed_precision_level = 0
 
 opt = TestOptions().parse()
 
@@ -16,6 +25,9 @@ dataloader = data.create_dataloader(opt)
 model = Pix2PixModel(opt)
 if opt.task != 'MMIS' and opt.dataset_mode != 'photo2art':
     model.eval()
+
+for k, v in model.named_modules():
+    v.register_forward_hook(hook)
 
 visualizer = Visualizer(opt)
 

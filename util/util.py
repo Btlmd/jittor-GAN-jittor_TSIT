@@ -199,17 +199,26 @@ def save_network(net, label, epoch, opt):
 
 
 def load_network(net, label, epoch, opt):
-    save_filename = '%s_net_%s.pickle' % (epoch, label)
+    save_filename = '%s_net_%s.' % (epoch, label)
     save_dir = os.path.join(opt.checkpoints_dir, opt.name)
     save_path = os.path.join(save_dir, save_filename)
 
-    # weights = jt.load(save_path)
-
     # pickle loader
-    with open(save_path, "rb") as f:
+    with open(save_path + "pickle", "rb") as f:
         weights = pickle.load(f)
 
+
+    # if os.path.exists(save_path + "pkl"):
+    #     save_path += "pkl"
+    #     weights = jt.load(save_path)
+    # elif os.path.exists(save_path + "pth"):
+    #     save_path += "pth"
+    #     weights = jt.load(save_path)
+    # else:
+    #     raise RuntimeError(f"{save_filename} Not found")
     net.load_state_dict(weights)
+    # import IPython
+    # IPython.embed()
     return net
 
 

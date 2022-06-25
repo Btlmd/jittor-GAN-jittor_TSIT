@@ -1,5 +1,6 @@
 import jittor as jt
 import jittor.nn as nn
+from IPython import embed
 
 
 class Module(nn.Module):
@@ -7,4 +8,6 @@ class Module(nn.Module):
         super(Module, self).__init__()
 
     def execute(self, *args, **kw):
-        return self.forward(*args, **kw)
+        res = self.forward(*args, **kw)
+        # embed()
+        return res

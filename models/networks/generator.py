@@ -89,15 +89,19 @@ class TSITGenerator(BaseNetwork):
 
     def forward(self, input, real, z=None):
         # exit(-1)
+        # import IPython
+        # IPython.embed()
         content = input
         style =  real
         ft0, ft1, ft2, ft3, ft4, ft5, ft6, ft7 = self.content_stream(content)
         sft0, sft1, sft2, sft3, sft4, sft5, sft6, sft7 = self.style_stream(style) if not self.opt.no_ss else [None] * 8
+        # ic(ft0, ft1, ft2, ft3, ft4, ft5, ft6, ft7)
+        # ic(sft0, sft1, sft2, sft3, sft4, sft5, sft6, sft7)
         if self.opt.use_vae:
             # we sample z from unit normal and reshape the tensor
             if z is None:
                 z = jt.randn(content.size(0), self.opt.z_dim,
-                                dtype=jt.float32, device=content.get_device())
+                                dtype=jt.float32)
             x = self.fc(z)
             x = x.view(-1, 16 * self.opt.ngf, self.sh, self.sw)
         else:
@@ -106,11 +110,13 @@ class TSITGenerator(BaseNetwork):
                 x = nn.interpolate(content, size=(self.sh, self.sw))
             else:
                 # sample random noise
-                x = jt.randn(content.size(0), 3, self.sh, self.sw, dtype=jt.float32, device=content.get_device())
+                x = jt.randn(content.size(0), 3, self.sh, self.sw, dtype=jt.float32)
             x = self.fc(x)
-
+        ic(x)
         x = self.fadain_alpha(x, sft7, alpha=self.opt.alpha) if not self.opt.no_ss else x
+        ic("here", x)
         x = self.head_0(x, ft7)
+        ic(x)
 
         x = self.up(x)
         x = self.fadain_alpha(x, sft6, alpha=self.opt.alpha) if not self.opt.no_ss else x
@@ -144,6 +150,7 @@ class TSITGenerator(BaseNetwork):
 
         x = self.conv_img(nn.leaky_relu(x, 2e-1))
         x = jt.tanh(x)
+        ic(x)
         return x
 
 

@@ -5,8 +5,8 @@ set -x
 NAME='sis_landscape'
 TASK='SIS'
 DATA='landscape'
-CROOT='./datasets/landscape'
-SROOT='./datasets/landscape'
+CROOT='/work/data/debug'
+SROOT='./work/data/debug'
 CKPTROOT='./checkpoints'
 WORKER=4
 RESROOT='./results'
@@ -26,5 +26,6 @@ python test.py \
     --use_vae \
     --alpha 1.0 \
     --results_dir $RESROOT \
-    --which_epoch $EPOCH
+    --which_epoch $EPOCH \
+    --serial_batches
 #    --show_input

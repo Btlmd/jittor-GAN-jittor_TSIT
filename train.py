@@ -26,6 +26,7 @@ dataloader = data.create_dataloader(opt)
 print(9)
 trainer = Pix2PixTrainer(opt)
 
+
 print(8)
 # create tool for counting iterations
 iter_counter = IterationCounter(opt, len(dataloader))
@@ -34,8 +35,8 @@ iter_counter = IterationCounter(opt, len(dataloader))
 # visualizer = Visualizer(opt)
 
 print(3)
-trainer.save('initial')
-exit()
+# trainer.save('initial')
+# exit()
 for epoch in tqdm(iter_counter.training_epochs()):
     iter_counter.record_epoch_start(epoch)
     for i, data_i in enumerate(tqdm(dataloader), start=iter_counter.epoch_iter):
