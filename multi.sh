@@ -8,13 +8,15 @@ DATA='landscape'
 CROOT='/DATA2/gaoha/tsit/datasets/landscape'
 SROOT='/DATA2/gaoha/tsit/datasets/landscape'
 CKPTROOT='./checkpoints'
-WORKER=20
+WORKER=48
 
-python3 train.py \
+export CUDA_VISIBLE_DEVICES=1,2,4,5,6,7
+
+mpirun -np 6 python3 train.py \
     --name $NAME \
     --task $TASK \
     --checkpoints_dir $CKPTROOT \
-    --batchSize 5 \
+    --batchSize 30 \
     --dataset_mode $DATA \
     --croot $CROOT \
     --sroot $SROOT \

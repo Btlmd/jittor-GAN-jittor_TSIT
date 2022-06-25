@@ -5,7 +5,6 @@ import data
 from options.test_options import TestOptions
 from models.pix2pix_model import Pix2PixModel
 from util.visualizer import Visualizer
-from util import html
 from tqdm import tqdm
 
 import jittor as jt
@@ -21,11 +20,8 @@ model = Pix2PixModel(opt)
 
 visualizer = Visualizer(opt)
 
-web_dir = os.path.join(opt.results_dir, opt.name,
+img_dir = os.path.join(opt.results_dir, opt.name,
                        '%s_%s' % (opt.phase, opt.which_epoch))
-webpage = html.HTML(web_dir,
-                    'Experiment = %s, Phase = %s, Epoch = %s' %
-                    (opt.name, opt.phase, opt.which_epoch))
 
 # test
 print('Number of images: ', len(dataloader))
@@ -49,6 +45,5 @@ for i, data_i in enumerate(tqdm(dataloader)):
                                        ('synthesized_image', generated[b])])
         else:
             visuals = OrderedDict([('synthesized_image', generated[b])])
-        visualizer.save_images(webpage, visuals, img_path[b:b + 1])
+        visualizer.save_images(img_dir, visuals, img_path[b:b + 1])
 
-webpage.save()

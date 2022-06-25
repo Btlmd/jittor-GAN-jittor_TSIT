@@ -2,7 +2,6 @@ import os
 import ntpath
 import time
 from . import util
-from . import html
 import numpy as np
 import scipy.misc
 try:
@@ -41,7 +40,7 @@ class Visualizer():
                 image_numpy = image_numpy[0]
             visuals_lst.append(image_numpy)
         image_cath = np.concatenate(visuals_lst, axis=0)
-        print("Saving", img_path)
+        # print("Saving", img_path)
         util.save_image(image_cath, img_path)
 
     # errors: dictionary of error labels and values
@@ -76,16 +75,15 @@ class Visualizer():
         return visuals
 
     # save image to the disk
-    def save_images(self, webpage, visuals, image_path):        
+    def save_images(self, img_dir, visuals, image_path):
         visuals = self.convert_visuals_to_numpy(visuals)        
 
-        image_dir = webpage.get_image_dir()
         short_path = ntpath.basename(image_path[0])
         name = os.path.splitext(short_path)[0]
 
         visuals_lst = []
         image_name = '%s.png' % name
-        save_path = os.path.join(image_dir, image_name)
+        save_path = os.path.join(img_dir, image_name)
         for label, image_numpy in visuals.items():
             if len(image_numpy.shape) >= 4:
                 image_numpy = image_numpy[0]

@@ -5,17 +5,16 @@ set -x
 NAME='sis_landscape'
 TASK='SIS'
 DATA='landscape'
-CROOT='/DATA2/gaoha/tsit/datasets/landscape'
-SROOT='/DATA2/gaoha/tsit/datasets/landscape'
+CROOT='/work/data/data'
+SROOT='/work/data/data'
 CKPTROOT='./checkpoints'
 WORKER=4
 RESROOT='./results'
-EPOCH="total"
+EPOCH="57"
 
 python3 test.py \
     --name $NAME \
     --task $TASK \
-    --gpu_ids 0 \
     --checkpoints_dir $CKPTROOT \
     --batchSize 10 \
     --dataset_mode $DATA \

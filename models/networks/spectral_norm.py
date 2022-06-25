@@ -1,4 +1,5 @@
 """
+Note: This file is copied from https://github.com/Lewis-Liang/PytorchAndJittor
 Reference: https://github.com/Lewis-Liang/PytorchAndJittor/blob/a3c7bcfe898a936857cdfc103c205265695453d0/jt_spectral_norm.py
 """
 
@@ -9,15 +10,7 @@ import jittor.nn as nn
 from jittor.nn import Module
 
 class SpectralNorm:
-    # Invariant before and after each forward call:
-    #   u = normalize(W @ v)
-    # NB: At initialization, this invariant is not enforced
-
     _version: int = 1
-    # At version 1:
-    #   made  `W` not a buffer,
-    #   added `v` as a buffer, and
-    #   made eval mode use `W = u @ W_orig @ v` rather than the stored `W`.
     name: str
     dim: int
     n_power_iterations: int
@@ -35,42 +28,12 @@ class SpectralNorm:
     def reshape_weight_to_matrix(self, weight: jt.Var) -> jt.Var:
         weight_mat = weight
         if self.dim != 0:
-            # permute dim to front
             weight_mat = weight_mat.permute(self.dim,
                                             *[d for d in range(weight_mat.dim()) if d != self.dim])
         height = weight_mat.size(0)
         return weight_mat.reshape(height, -1)
 
     def compute_weight(self, module: Module, do_power_iteration: bool) -> jt.Var:
-        # NB: If `do_power_iteration` is set, the `u` and `v` vectors are
-        #     updated in power iteration **in-place**. This is very important
-        #     because in `DataParallel` forward, the vectors (being buffers) are
-        #     broadcast from the parallelized module to each module replica,
-        #     which is a new module object created on the fly. And each replica
-        #     runs its own spectral norm power iteration. So simply assigning
-        #     the updated vectors to the module this function runs on will cause
-        #     the update to be lost forever. And the next time the parallelized
-        #     module is replicated, the same randomly initialized vectors are
-        #     broadcast and used!
-        #
-        #     Therefore, to make the change propagate back, we rely on two
-        #     important behaviors (also enforced via tests):
-        #       1. `DataParallel` doesn't clone storage if the broadcast tensor
-        #          is already on correct device; and it makes sure that the
-        #          parallelized module is already on `device[0]`.
-        #       2. If the out tensor in `out=` kwarg has correct shape, it will
-        #          just fill in the values.
-        #     Therefore, since the same power iteration is performed on all
-        #     devices, simply updating the tensors in-place will make sure that
-        #     the module replica on `device[0]` will update the _u vector on the
-        #     parallized module (by shared storage).
-        #
-        #    However, after we update `u` and `v` in-place, we need to **clone**
-        #    them before using them to normalize the weight. This is to support
-        #    backproping through two forward passes, e.g., the common pattern in
-        #    GAN training: loss = D(real) - D(fake). Otherwise, engine will
-        #    complain that variables needed to do backward for the first forward
-        #    (i.e., the `u` and `v` vectors) are changed in the second forward.
         weight = getattr(module, self.name + '_orig')
         u = getattr(module, self.name + '_u')
         v = getattr(module, self.name + '_v')
@@ -100,30 +63,18 @@ class SpectralNorm:
         delattr(module, self.name + '_u')
         delattr(module, self.name + '_v')
         delattr(module, self.name + '_orig')
-        # module.register_parameter(self.name, jt.Var(weight.detach()))
         setattr(module, self.name, jt.Var(weight.detach()))
 
     def __call__(self, module: Module, inputs: Any) -> None:
-        # self.compute_weight(module, do_power_iteration=module.is_training())
-        # embed()
         setattr(module, self.name, self.compute_weight(module, do_power_iteration=module.is_training()))
 
 
     def _solve_v_and_rescale(self, weight_mat, u, target_sigma):
-        # Tries to returns a vector `v` s.t. `u = normalize(W @ v)`
-        # (the invariant at top of this class) and `u @ W @ v = sigma`.
-        # This uses pinverse in case W^T W is not invertible.
-        # v = torch.linalg.multi_dot([weight_mat.t().mm(weight_mat).pinverse(), weight_mat.t(), u.unsqueeze(1)]).squeeze(1)
         v = jt.matmul(jt.matmul(weight_mat.t().mm(weight_mat).pinverse(), jt.matmul(weight_mat.t(), u.unsqueeze(1)))).squeeze(1)
         return v.mul_(target_sigma / jt.matmul(u, jt.matmul(weight_mat, v)))
 
     @staticmethod
     def apply(module: Module, name: str, n_power_iterations: int, dim: int, eps: float) -> 'SpectralNorm':
-        # for k, hook in module._forward_pre_hooks.items():
-        #     if isinstance(hook, SpectralNorm) and hook.name == name:
-        #         raise RuntimeError("Cannot register two spectral_norm hooks on "
-        #                            "the same parameter {}".format(name))
-        from icecream import ic
         fn = SpectralNorm(name, n_power_iterations, dim, eps)
         weight = module._parameters[name]
         if weight is None:
@@ -139,19 +90,11 @@ class SpectralNorm:
             v = normalize(jt.Var(v_np), dim=0, eps=fn.eps)
 
         delattr(module, fn.name)
-        # module.register_parameter(fn.name + "_orig", weight)
+
         import numpy.random as random
         weight_ = jt.randn_like(weight)
         setattr(module, fn.name + "_orig", jt.Var(weight_))
-
-        # We still need to assign weight back as fn.name because all sorts of
-        # things may assume that it exists, e.g., when initializing weights.
-        # However, we can't directly assign as it could be an nn.Parameter and
-        # gets added as a parameter. Instead, we register weight.data as a plain
-        # attribute.
-        # setattr(module, fn.name, weight.data)
         setattr(module, fn.name, jt.Var(weight_))
-
         setattr(module, fn.name + "_u", u)
         setattr(module, fn.name + "_v", v)
         module.register_pre_forward_hook(fn)
@@ -165,55 +108,6 @@ def spectral_norm(module: T_module,
                   n_power_iterations: int = 1,
                   eps: float = 1e-12,
                   dim: Optional[int] = None) -> T_module:
-    r"""Applies spectral normalization to a parameter in the given module.
-
-    .. math::
-        \mathbf{W}_{SN} = \dfrac{\mathbf{W}}{\sigma(\mathbf{W})},
-        \sigma(\mathbf{W}) = \max_{\mathbf{h}: \mathbf{h} \ne 0} \dfrac{\|\mathbf{W} \mathbf{h}\|_2}{\|\mathbf{h}\|_2}
-
-    Spectral normalization stabilizes the training of discriminators (critics)
-    in Generative Adversarial Networks (GANs) by rescaling the weight tensor
-    with spectral norm :math:`\sigma` of the weight matrix calculated using
-    power iteration method. If the dimension of the weight tensor is greater
-    than 2, it is reshaped to 2D in power iteration method to get spectral
-    norm. This is implemented via a hook that calculates spectral norm and
-    rescales weight before every :meth:`~Module.forward` call.
-
-    See `Spectral Normalization for Generative Adversarial Networks`_ .
-
-    .. _`Spectral Normalization for Generative Adversarial Networks`: https://arxiv.org/abs/1802.05957
-
-    Args:
-        module (nn.Module): containing module
-        name (str, optional): name of weight parameter
-        n_power_iterations (int, optional): number of power iterations to
-            calculate spectral norm
-        eps (float, optional): epsilon for numerical stability in
-            calculating norms
-        dim (int, optional): dimension corresponding to number of outputs,
-            the default is ``0``, except for modules that are instances of
-            ConvTranspose{1,2,3}d, when it is ``1``
-
-    Returns:
-        The original module with the spectral norm hook
-
-    .. note::
-        This function has been reimplemented as
-        :func:`torch.nn.utils.parametrizations.spectral_norm` using the new
-        parametrization functionality in
-        :func:`torch.nn.utils.parametrize.register_parametrization`. Please use
-        the newer version. This function will be deprecated in a future version
-        of PyTorch.
-
-    Example::
-
-        >>> m = spectral_norm(nn.Linear(20, 40))
-        >>> m
-        Linear(in_features=20, out_features=40, bias=True)
-        >>> m.weight_u.size()
-        torch.Size([40])
-
-    """
     if dim is None:
         if isinstance(module, (nn.ConvTranspose,
                                nn.ConvTranspose3d)):
