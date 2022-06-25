@@ -29,6 +29,7 @@ mpirun -np 6 python3 train.py \
     --save_epoch_freq 5 \
     --niter 40 \
     --niter_decay 20 \
+    --lr 0.001 \
     --lambda_vgg 20 \
     --lambda_feat 10
 #    --which_epoch 38 \
