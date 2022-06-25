@@ -11,6 +11,9 @@ from trainers.pix2pix_trainer import Pix2PixTrainer
 from tqdm import tqdm
 import jittor as jt
 
+from icecream import ic
+ic.disable()
+
 # Use CUDA
 jt.flags.use_cuda = 2  # Force CUDA
 
@@ -32,7 +35,7 @@ print(8)
 iter_counter = IterationCounter(opt, len(dataloader))
 
 # create tool for visualization
-# visualizer = Visualizer(opt)
+visualizer = Visualizer(opt)
 
 print(3)
 # trainer.save('initial')
@@ -53,22 +56,21 @@ for epoch in tqdm(iter_counter.training_epochs()):
         trainer.run_discriminator_one_step(data_i)
 
         # Visualizations
-        # if iter_counter.needs_printing():
-        #     losses = trainer.get_latest_losses()
-        #     visualizer.print_current_errors(epoch, iter_counter.epoch_iter,
-        #                                     losses, iter_counter.time_per_iter)
-        #     visualizer.plot_current_errors(losses, iter_counter.total_steps_so_far)
-        #
-        # if iter_counter.needs_displaying():
-        #     if opt.task == 'SIS':
-        #         visuals = OrderedDict([('input_label', data_i['label'][0]),
-        #                                ('synthesized_image', trainer.get_latest_generated()[0]),
-        #                                ('real_image', data_i['image'][0])])
-        #     else:
-        #         visuals = OrderedDict([('content', data_i['label'][0]),
-        #                                ('synthesized_image', trainer.get_latest_generated()[0]),
-        #                                ('style', data_i['image'][0])])
-        #     visualizer.display_current_results(visuals, epoch, iter_counter.total_steps_so_far)
+        if iter_counter.needs_printing():
+            losses = trainer.get_latest_losses()
+            visualizer.print_current_errors(epoch, iter_counter.epoch_iter,
+                                            losses, iter_counter.time_per_iter)
+            visualizer.plot_current_errors(losses, iter_counter.total_steps_so_far)
+        
+        if iter_counter.needs_displaying():
+            if opt.task == 'SIS':
+                visuals = OrderedDict([('synthesized_image', trainer.get_latest_generated()[0]),
+                                       ('real_image', data_i['image'][0])])
+            else:
+                visuals = OrderedDict([('content', data_i['label'][0]),
+                                       ('synthesized_image', trainer.get_latest_generated()[0]),
+                                       ('style', data_i['image'][0])])
+            visualizer.display_current_results(visuals, epoch, iter_counter.total_steps_so_far)
 
         if iter_counter.needs_saving():
             print('saving the latest model (epoch %d, total_steps %d)' %

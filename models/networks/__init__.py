@@ -33,22 +33,17 @@ def modify_commandline_options(parser, is_train):
 
 
 def create_network(cls, opt):
-    print("a")
     net = cls(opt)
-    print("a")
     net.print_network()
-    print("a")
     # if len(opt.gpu_ids) > 0:
     #     assert(torch.cuda.is_available())
     #     net.cuda()
     net.init_weights(opt.init_type, opt.init_variance)
-    print("a")
     return net
 
 
 def define_G(opt):
     netG_cls = find_network_using_name(opt.netG, 'generator')
-    print(47)
     return create_network(netG_cls, opt)
 
 

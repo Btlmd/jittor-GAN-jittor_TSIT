@@ -16,7 +16,8 @@ def hook(module, input, output, kw=None):
 
 import jittor as jt
 
-jt.flags.auto_mixed_precision_level = 0
+jt.flags.auto_mixed_precision_level = 6
+jt.flags.amp_reg = 1
 
 opt = TestOptions().parse()
 

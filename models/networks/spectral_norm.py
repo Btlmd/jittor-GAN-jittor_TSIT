@@ -133,7 +133,6 @@ class SpectralNorm:
         #     raise ValueError(
         #         'The module passed to `SpectralNorm` can\'t have uninitialized parameters. '
         #         'Make sure to run the dummy forward before applying spectral normalization')
-        ic()
         with jt.no_grad():
             weight_mat = fn.reshape_weight_to_matrix(weight)
             h, w = weight_mat.size()
@@ -143,14 +142,11 @@ class SpectralNorm:
             v_np = random.normal(0, 1, size=[w])
             u = normalize(jt.Var(u_np), dim=0, eps=fn.eps)
             v = normalize(jt.Var(v_np), dim=0, eps=fn.eps)
-            ic()
 
         delattr(module, fn.name)
-        ic(weight.shape)
         # module.register_parameter(fn.name + "_orig", weight)
         import numpy.random as random
         weight_ = jt.randn_like(weight)
-        ic()
         setattr(module, fn.name + "_orig", jt.Var(weight_))
 
         # We still need to assign weight back as fn.name because all sorts of
@@ -163,9 +159,7 @@ class SpectralNorm:
 
         setattr(module, fn.name + "_u", u)
         setattr(module, fn.name + "_v", v)
-        ic()
         module.register_pre_forward_hook(fn)
-        ic()
         return fn
 
 

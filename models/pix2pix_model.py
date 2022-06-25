@@ -84,13 +84,13 @@ class Pix2PixModel(Module):
     ############################################################################
 
     def initialize_networks(self, opt):
-        print("initing")
+        # print("initing")
         netG = networks.define_G(opt)
-        print("G")
+        # print("G")
         netD = networks.define_D(opt) if opt.isTrain else None
-        print("D")
+        # print("D")
         netE = networks.define_E(opt) if opt.use_vae else None
-        print("E")
+        # print("E")
 
         if not opt.isTrain or opt.continue_train:
             netG = util.load_network(netG, 'G', opt.which_epoch, opt)

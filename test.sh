@@ -12,7 +12,7 @@ WORKER=4
 RESROOT='./results'
 EPOCH='38'
 
-python test.py \
+/root/miniconda3/envs/jittor/bin/python3 test.py \
     --name $NAME \
     --task $TASK \
     --gpu_ids 0 \

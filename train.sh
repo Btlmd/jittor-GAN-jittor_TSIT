@@ -8,9 +8,9 @@ DATA='landscape'
 CROOT='./datasets/landscape'
 SROOT='./datasets/landscape'
 CKPTROOT='./checkpoints'
-WORKER=4
+WORKER=12
 
-python train.py \
+/root/miniconda3/envs/jittor/bin/python3 train.py \
     --name $NAME \
     --task $TASK \
     --gpu_ids 0 \
@@ -24,7 +24,7 @@ python train.py \
     --num_upsampling_layers more \
     --use_vae \
     --alpha 1.0 \
-    --display_freq 200 \
+    --display_freq 20 \
     --save_epoch_freq 1 \
     --niter 100 \
     --niter_decay 100 \

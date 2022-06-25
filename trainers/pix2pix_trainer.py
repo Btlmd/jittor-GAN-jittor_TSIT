@@ -11,22 +11,18 @@ class Pix2PixTrainer():
 
     def __init__(self, opt):
         self.opt = opt
-        print(1)
         self.pix2pix_model = Pix2PixModel(opt)
         # if len(opt.gpu_ids) > 0:
         #     self.pix2pix_model = DataParallelWithCallback(self.pix2pix_model,
         #                                                   device_ids=opt.gpu_ids)
         #     self.pix2pix_model_on_one_gpu = self.pix2pix_model.module
         # else:
-        print(2)
         self.pix2pix_model_on_one_gpu = self.pix2pix_model
 
         self.generated = None
         if opt.isTrain:
-            print(3)
             self.optimizer_G, self.optimizer_D = \
                 self.pix2pix_model_on_one_gpu.create_optimizers(opt)
-            print(4)
             self.old_lr = opt.lr
 
     def run_generator_one_step(self, data):

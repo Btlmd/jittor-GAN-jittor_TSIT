@@ -25,6 +25,7 @@ class Stream(BaseNetwork):
         return nn.interpolate(input, scale_factor=0.5)
 
     def forward(self,input):
+
         # assume that input shape is (n,c,256,512)
 
         x0 = self.res_0(input) # (n,64,256,512)

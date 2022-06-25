@@ -4,7 +4,7 @@
 # import torchvision
 # import torch.nn.utils.spectral_norm as spectral_norm
 import IPython
-import jittor as jt
+import jittor
 import jittor.nn as nn
 import jittor_utils.misc
 
@@ -28,27 +28,20 @@ class FADEResnetBlock(Module):
         # attributes
         self.learned_shortcut = (fin != fout)
         fmiddle = fin
-        ic()
         # create conv layers
         self.conv_0 = nn.Conv2d(fin, fmiddle, kernel_size=3, padding=1)
         self.conv_1 = nn.Conv2d(fmiddle, fout, kernel_size=3, padding=1)
         if self.learned_shortcut:
             self.conv_s = nn.Conv2d(fin, fout, kernel_size=1, bias=False)
-        ic()
         # apply spectral norm if specified
         if 'spectral' in opt.norm_G:
-            ic()
             self.conv_0 = spectral_norm(self.conv_0)
-            ic()
             self.conv_1 = spectral_norm(self.conv_1)
-            ic()
             if self.learned_shortcut:
                 self.conv_s = spectral_norm(self.conv_s)
-        ic()
         # define normalization layers
         fade_config_str = opt.norm_G.replace('spectral', '')
         self.norm_0 = FADE(fade_config_str, fin, fin)
-        ic()
         self.norm_1 = FADE(fade_config_str, fmiddle, fmiddle)
         if self.learned_shortcut:
             self.norm_s = FADE(fade_config_str, fin, fin)
@@ -85,19 +78,14 @@ class StreamResnetBlock(Module):
         # create conv layers
         self.conv_0 = nn.Conv2d(fin, fmiddle, kernel_size=3, padding=1)
         self.conv_1 = nn.Conv2d(fmiddle, fout, kernel_size=3, padding=1)
-
         if self.learned_shortcut:
             self.conv_s = nn.Conv2d(fin, fout, kernel_size=1, bias=False)
-
         # apply spectral norm if specified
         if 'spectral' in opt.norm_S:
             self.conv_0 = spectral_norm(self.conv_0)
-
             self.conv_1 = spectral_norm(self.conv_1)
-
             if self.learned_shortcut:
                 self.conv_s = spectral_norm(self.conv_s)
-
         # define normalization layers
         subnorm_type = opt.norm_S.replace('spectral', '')
         if subnorm_type == 'batch':
@@ -121,12 +109,14 @@ class StreamResnetBlock(Module):
 
     def forward(self, x):
         # IPython.embed()
-        from icecream import ic
-        ic(self.conv_0.weight, self.conv_0.bias, self.conv_0.weight_orig)
+
+        # import IPython
+        # IPython.embed(header="jittor res block")
+        
         x_s = self.shortcut(x)
+        
 
         dx = self.actvn(self.norm_layer_in(self.conv_0(x)))
-        ic(self.conv_0.weight, self.conv_0.bias, self.conv_0.weight_orig)
         dx = self.actvn(self.norm_layer_out(self.conv_1(dx)))
         out = x_s + dx
         return out
