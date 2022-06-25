@@ -1,19 +1,16 @@
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
 from models.networks.architecture import VGG19
 
 import jittor as jt
 import jittor.nn as nn
 # from jittor.models import vgg19
-from infastructure import Module
+# from infastructure import Module
 
 
 # Defines the GAN loss which uses either LSGAN or the regular GAN.
 # When LSGAN is used, it is basically same as MSELoss,
 # but it abstracts away the need to create the target label tensor
 # that has the same size as the input
-class GANLoss(Module):
+class GANLoss(nn.Module):
     def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0,
                  tensor=jt.float32, opt=None):
         super(GANLoss, self).__init__()
@@ -103,14 +100,14 @@ class GANLoss(Module):
 
 
 # Perceptual loss that uses a pretrained VGG network
-class VGGLoss(Module):
+class VGGLoss(nn.Module):
     def __init__(self, gpu_ids):
         super(VGGLoss, self).__init__()
         self.vgg = VGG19()
         self.criterion = nn.L1Loss()
         self.weights = [1.0 / 32, 1.0 / 16, 1.0 / 8, 1.0 / 4, 1.0]
 
-    def forward(self, x, y):
+    def execute(self, x, y):
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
         loss = 0
         # print(len(x_vgg), "VGG")
@@ -120,6 +117,6 @@ class VGGLoss(Module):
 
 
 # KL Divergence loss used in VAE with an image encoder
-class KLDLoss(Module):
-    def forward(self, mu, logvar):
+class KLDLoss(nn.Module):
+    def execute(self, mu, logvar):
         return -0.5 * jt.sum(1 + logvar - mu.pow(2) - logvar.exp())

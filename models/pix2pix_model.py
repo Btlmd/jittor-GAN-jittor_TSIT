@@ -1,12 +1,10 @@
-# import torch
 import models.networks as networks
 import util.util as util
-from infastructure import Module
 from jittor import nn
 import jittor as jt
 
 
-class Pix2PixModel(Module):
+class Pix2PixModel(nn.Module):
     @staticmethod
     def modify_commandline_options(parser, is_train):
         networks.modify_commandline_options(parser, is_train)
@@ -34,7 +32,7 @@ class Pix2PixModel(Module):
     # of deep networks. We used this approach since DataParallel module
     # can't parallelize custom functions, we branch to different
     # routines based on |mode|.
-    def forward(self, data, mode):
+    def execute(self, data, mode):
         input_semantics, real_image = self.preprocess_input(data)
         if mode == 'generator':
             g_loss, generated = self.compute_generator_loss(
@@ -93,11 +91,15 @@ class Pix2PixModel(Module):
         # print("E")
 
         if not opt.isTrain or opt.continue_train:
+            print("Loading Epoch", opt.which_epoch)
             netG = util.load_network(netG, 'G', opt.which_epoch, opt)
+            print("G Loaded")
             if opt.isTrain:
                 netD = util.load_network(netD, 'D', opt.which_epoch, opt)
+                print("D Loaded")
             if opt.use_vae:
                 netE = util.load_network(netE, 'E', opt.which_epoch, opt)
+                print("E Loaded")
 
         return netG, netD, netE
 
@@ -108,10 +110,6 @@ class Pix2PixModel(Module):
         # move to GPU and change data types
         if self.opt.task == 'SIS':
             data['label'] = data['label'].long()
-        # if self.use_gpu():
-        #     data['label'] = data['label']
-        #     data['instance'] = data['instance']
-        #     data['image'] = data['image']
 
         # create one-hot label map for SIS
         if self.opt.task == 'SIS':
@@ -259,6 +257,3 @@ class Pix2PixModel(Module):
         std = jt.exp(0.5 * logvar)
         eps = jt.randn_like(std)
         return eps * std + mu
-
-    def use_gpu(self):
-        return len(self.opt.gpu_ids) > 0

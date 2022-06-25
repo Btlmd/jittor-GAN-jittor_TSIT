@@ -4,7 +4,7 @@ import jittor
 import jittor.nn as nn
 # from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
 from .spectral_norm import spectral_norm
-from infastructure import Module
+# from infastructure import Module
 
 
 # Returns a function that creates a standard normalization function
@@ -47,7 +47,7 @@ def get_norm_layer(opt, norm_type='instance'):
 
 
 # Creates FADE normalization layer based on the given configuration
-class FADE(Module):
+class FADE(nn.Module):
     def __init__(self, config_text, norm_nc, label_nc):
         super().__init__()
 
@@ -71,7 +71,7 @@ class FADE(Module):
         self.mlp_gamma = nn.Conv2d(label_nc, norm_nc, kernel_size=ks, padding=pw)
         self.mlp_beta = nn.Conv2d(label_nc, norm_nc, kernel_size=ks, padding=pw)
 
-    def forward(self, x, feat):
+    def execute(self, x, feat):
         # Step 1. generate parameter-free normalized activations
         normalized = self.param_free_norm(x)
 

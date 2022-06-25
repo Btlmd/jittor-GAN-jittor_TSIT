@@ -1,5 +1,4 @@
 import importlib
-# import torch.utils.data
 import jittor
 from data.base_dataset import BaseDataset
 

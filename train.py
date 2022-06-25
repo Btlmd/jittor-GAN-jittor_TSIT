@@ -8,7 +8,9 @@ from options.train_options import TrainOptions
 from util.iter_counter import IterationCounter
 from util.visualizer import Visualizer
 from trainers.pix2pix_trainer import Pix2PixTrainer
+import util.util as uu
 from tqdm import tqdm
+import pickle
 import jittor as jt
 
 from icecream import ic
@@ -26,20 +28,15 @@ print(' '.join(sys.argv))
 dataloader = data.create_dataloader(opt)
 
 # create trainer for our model
-print(9)
+
 trainer = Pix2PixTrainer(opt)
 
-
-print(8)
 # create tool for counting iterations
 iter_counter = IterationCounter(opt, len(dataloader))
 
 # create tool for visualization
 visualizer = Visualizer(opt)
 
-print(3)
-# trainer.save('initial')
-# exit()
 for epoch in tqdm(iter_counter.training_epochs()):
     iter_counter.record_epoch_start(epoch)
     for i, data_i in enumerate(tqdm(dataloader), start=iter_counter.epoch_iter):

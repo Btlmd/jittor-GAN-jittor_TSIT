@@ -1,6 +1,3 @@
-# import torch
-# import torch.nn.functional as F
-
 import jittor as jt
 import jittor.nn as nn
 from jittor.nn import matmul as mm

@@ -1,6 +1,5 @@
 import jittor.nn as nn
 import numpy as np
-# import torch.nn.functional as F
 from models.networks.base_network import BaseNetwork
 from models.networks.normalization import get_norm_layer
 
@@ -29,7 +28,7 @@ class ConvEncoder(BaseNetwork):
 
         self.actvn = nn.LeakyReLU(0.2)
 
-    def forward(self, x):
+    def execute(self, x):
         if x.size(2) != 256 or x.size(3) != 256:
             x = nn.interpolate(x, size=(256, 256), mode='bilinear')
 

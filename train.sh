@@ -5,17 +5,16 @@ set -x
 NAME='sis_landscape'
 TASK='SIS'
 DATA='landscape'
-CROOT='./datasets/landscape'
-SROOT='./datasets/landscape'
+CROOT='/DATA2/gaoha/tsit/datasets/landscape'
+SROOT='/DATA2/gaoha/tsit/datasets/landscape'
 CKPTROOT='./checkpoints'
-WORKER=12
+WORKER=20
 
-/root/miniconda3/envs/jittor/bin/python3 train.py \
+python3 train.py \
     --name $NAME \
     --task $TASK \
-    --gpu_ids 0 \
     --checkpoints_dir $CKPTROOT \
-    --batchSize 2 \
+    --batchSize 5 \
     --dataset_mode $DATA \
     --croot $CROOT \
     --sroot $SROOT \

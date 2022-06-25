@@ -49,7 +49,7 @@ class MultiscaleDiscriminator(BaseNetwork):
 
     # Returns list of lists of discriminator outputs.
     # The final result is of size opt.num_D x opt.n_layers_D
-    def forward(self, input):
+    def execute(self, input):
         result = []
         get_intermediate_features = not self.opt.no_ganFeat_loss
         # chs = self.named_modules()
@@ -113,7 +113,7 @@ class NLayerDiscriminator(BaseNetwork):
                 input_nc += 1
         return input_nc
 
-    def forward(self, input):
+    def execute(self, input):
         results = [input]
         for submodel in self.children():
             intermediate_output = submodel(results[-1])

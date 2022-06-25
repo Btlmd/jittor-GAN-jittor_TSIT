@@ -1,6 +1,5 @@
 import re
 import importlib
-# import torch
 import jittor as jt
 from argparse import Namespace
 import numpy as np
@@ -195,31 +194,14 @@ def save_network(net, label, epoch, opt):
     save_filename = '%s_net_%s.pkl' % (epoch, label)
     save_path = os.path.join(opt.checkpoints_dir, opt.name, save_filename)
     jt.save(net.state_dict(), save_path)
-    # if len(opt.gpu_ids) and torch.cuda.is_available():
-    #     net.cuda()
 
 
 def load_network(net, label, epoch, opt):
-    save_filename = '%s_net_%s.' % (epoch, label)
+    save_filename = '%s_net_%s.pkl' % (epoch, label)
     save_dir = os.path.join(opt.checkpoints_dir, opt.name)
     save_path = os.path.join(save_dir, save_filename)
-
-    # pickle loader
-    with open(save_path + "pickle", "rb") as f:
-        weights = pickle.load(f)
-
-
-    # if os.path.exists(save_path + "pkl"):
-    #     save_path += "pkl"
-    #     weights = jt.load(save_path)
-    # elif os.path.exists(save_path + "pth"):
-    #     save_path += "pth"
-    #     weights = jt.load(save_path)
-    # else:
-    #     raise RuntimeError(f"{save_filename} Not found")
+    weights = jt.load(save_path)
     net.load_state_dict(weights)
-    # import IPython
-    # IPython.embed()
     return net
 
 
@@ -271,21 +253,3 @@ def labelcolormap(N):
                     cmap[i] = np.array(list(color))
 
     return cmap
-
-
-# class Colorize(object):
-#     def __init__(self, n=35):
-#         self.cmap = labelcolormap(n)
-#         self.cmap = torch.from_numpy(self.cmap[:n])
-
-#     def __call__(self, gray_image):
-#         size = gray_image.size()
-#         color_image = torch.ByteTensor(3, size[1], size[2]).fill_(0)
-
-#         for label in range(0, len(self.cmap)):
-#             mask = (label == gray_image[0]).cpu()
-#             color_image[0][mask] = self.cmap[label][0]
-#             color_image[1][mask] = self.cmap[label][1]
-#             color_image[2][mask] = self.cmap[label][2]
-
-#         return color_image

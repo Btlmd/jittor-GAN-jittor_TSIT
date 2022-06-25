@@ -1,4 +1,3 @@
-# import torch.utils.data as data
 from jittor.dataset.dataset import Dataset
 from PIL import Image
 import jittor.transform as transforms

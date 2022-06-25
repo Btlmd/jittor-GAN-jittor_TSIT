@@ -1,6 +1,4 @@
-# import torch
 import jittor.nn as nn
-# import torch.nn.functional as F
 import jittor as jt
 from models.networks.base_network import BaseNetwork
 from models.networks.normalization import get_norm_layer
@@ -76,7 +74,7 @@ class TSITGenerator(BaseNetwork):
         t = alpha * t + (1 - alpha) * content_feat
         return t
 
-    def forward(self, input, real, z=None):
+    def execute(self, input, real, z=None):
         # exit(-1)
         
         content = input
@@ -88,10 +86,8 @@ class TSITGenerator(BaseNetwork):
         if self.opt.use_vae:
             # we sample z from unit normal and reshape the tensor
             if z is None:
-                # z = jt.randn(content.size(0), self.opt.z_dim,
-                #                 dtype=jt.float32)
-                z = jt.zeros(content.size(0), self.opt.z_dim,
-                                 dtype=jt.float32)
+                z = jt.randn(content.size(0), self.opt.z_dim,
+                                dtype=jt.float32)
             x = self.fc(z)
             x = x.view(-1, 16 * self.opt.ngf, self.sh, self.sw)
         else:
@@ -202,5 +198,5 @@ class Pix2PixHDGenerator(BaseNetwork):
 
         self.model = nn.Sequential(*model)
 
-    def forward(self, input, z=None):
+    def execute(self, input, z=None):
         return self.model(input)

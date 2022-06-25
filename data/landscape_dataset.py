@@ -2,8 +2,6 @@ import glob
 import os
 from pathlib import Path
 
-# import torch
-
 from data.pix2pix_dataset import Pix2pixDataset
 # from data.image_folder import make_dataset
 
@@ -27,27 +25,12 @@ class LandScapeDataset(Pix2pixDataset):
         root = opt.croot
         phase = 'val' if opt.phase == 'test' else 'train'
 
-        # all_images = make_dataset(root, recursive=True, read_cache=False, write_cache=False)
-        # image_paths = []
-        # label_paths = []
-        # for p in all_images:
-        #     if '_%s_' % phase not in p:
-        #         continue
-        #     if p.endswith('.jpg'):
-        #         image_paths.append(p)
-        #     elif p.endswith('.png'):
-        #         label_paths.append(p)
-
-        # These codes are not tested yet.
         # These pictures are needed to resize to 512 x 384 first !!!!!
         if opt.phase == 'train':
             image_paths = sorted(glob.glob(os.path.join(root, 'train', 'imgs', '*.jpg')))
             label_paths = sorted(glob.glob(os.path.join(root, 'train', 'labels', '*.png')))
 
         elif opt.phase == 'test':
-            # image_paths = sorted(glob.glob(os.path.join(root, 'train', 'imgs', '*.jpg')))[0:100]
-            # label_paths = sorted(glob.glob(os.path.join(root, 'train', 'labels', '*.png')))[0:100]
-            # image_paths = sorted(glob.glob(os.path.join(root, 'test', 'imgs', '*.jpg')))
             label_paths = sorted(glob.glob(os.path.join(root, 'test', '*.png')))
             image_paths = label_paths
 
@@ -56,7 +39,6 @@ class LandScapeDataset(Pix2pixDataset):
         instance_paths = []  # don't use instance map for ade20k
 
         return label_paths, image_paths, instance_paths
-
 
     # No postprocess at all
     def postprocess(self, input_dict):

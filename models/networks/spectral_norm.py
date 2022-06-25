@@ -7,7 +7,6 @@ from jittor.misc import normalize
 from typing import Any, Optional, TypeVar
 import jittor.nn as nn
 from jittor.nn import Module
-from IPython import  embed
 
 class SpectralNorm:
     # Invariant before and after each forward call:
@@ -129,10 +128,6 @@ class SpectralNorm:
         weight = module._parameters[name]
         if weight is None:
             raise ValueError(f'`SpectralNorm` cannot be applied as parameter `{name}` is None')
-        # if isinstance(weight, torch.nn.parameter.UninitializedParameter):
-        #     raise ValueError(
-        #         'The module passed to `SpectralNorm` can\'t have uninitialized parameters. '
-        #         'Make sure to run the dummy forward before applying spectral normalization')
         with jt.no_grad():
             weight_mat = fn.reshape_weight_to_matrix(weight)
             h, w = weight_mat.size()

@@ -1,4 +1,3 @@
-# import torch.nn.functional as F
 import jittor.nn as nn
 from models.networks.base_network import BaseNetwork
 from models.networks.architecture import StreamResnetBlock as StreamResnetBlock
@@ -24,7 +23,7 @@ class Stream(BaseNetwork):
     def down(self, input):
         return nn.interpolate(input, scale_factor=0.5)
 
-    def forward(self,input):
+    def execute(self,input):
 
         # assume that input shape is (n,c,256,512)
 

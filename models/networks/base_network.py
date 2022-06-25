@@ -1,14 +1,11 @@
-# import torch.nn as nn
-# from torch.nn import init
-
 import jittor.nn as nn
 import jittor.init as init
 import jittor as jt
-from infastructure import Module
+# from infastructure import Module
 from IPython import embed
 
 
-class BaseNetwork(Module):
+class BaseNetwork(nn.Module):
     def __init__(self):
         super(BaseNetwork, self).__init__()
 

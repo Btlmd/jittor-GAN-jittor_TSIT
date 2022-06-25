@@ -1,9 +1,3 @@
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
-# import torchvision
-# import torch.nn.utils.spectral_norm as spectral_norm
-import IPython
 import jittor
 import jittor.nn as nn
 import jittor_utils.misc
@@ -13,7 +7,7 @@ from jittor.models import vgg19
 from .spectral_norm import spectral_norm
 from models.networks.normalization import FADE
 # from models.networks.sync_batchnorm import SynchronizedBatchNorm2d
-from infastructure import Module
+# from infastructure import Module
 from icecream import ic
 
 
@@ -24,7 +18,7 @@ from icecream import ic
 # class-conditional GAN architecture using residual block.
 # The code was inspired from https://github.com/LMescheder/GAN_stability
 # and https://github.com/NVlabs/SPADE.
-class FADEResnetBlock(Module):
+class FADEResnetBlock(nn.Module):
     def __init__(self, fin, fout, opt):
         super().__init__()
         # attributes
@@ -50,7 +44,7 @@ class FADEResnetBlock(Module):
 
     # Note the resnet block with FADE also takes in |feat|,
     # the feature map as input
-    def forward(self, x, feat):
+    def execute(self, x, feat):
         x_s = self.shortcut(x, feat)
 
         dx = self.conv_0(self.actvn(self.norm_0(x, feat)))
@@ -71,7 +65,7 @@ class FADEResnetBlock(Module):
         return nn.leaky_relu(x, 2e-1)
 
 
-class StreamResnetBlock(Module):
+class StreamResnetBlock(nn.Module):
     def __init__(self, fin, fout, opt):
         super().__init__()
         # attributes
@@ -109,7 +103,7 @@ class StreamResnetBlock(Module):
         else:
             raise ValueError('normalization layer %s is not recognized' % subnorm_type)
 
-    def forward(self, x):
+    def execute(self, x):
         # IPython.embed()
 
         # import IPython
@@ -136,7 +130,7 @@ class StreamResnetBlock(Module):
 
 # ResNet block used in pix2pixHD
 # We keep the same architecture as pix2pixHD.
-class ResnetBlock(Module):
+class ResnetBlock(nn.Module):
     def __init__(self, dim, norm_layer, activation=nn.ReLU(False), kernel_size=3):
         super().__init__()
 
@@ -149,14 +143,14 @@ class ResnetBlock(Module):
             norm_layer(nn.Conv2d(dim, dim, kernel_size=kernel_size))
         )
 
-    def forward(self, x):
+    def execute(self, x):
         y = self.conv_block(x)
         out = x + y
         return out
 
 
 # VGG architecture, used for the perceptual loss using a pretrained VGG network
-class VGG19(Module):
+class VGG19(nn.Module):
     def __init__(self, requires_grad=False):
         super().__init__()
         vgg_pretrained_features = vgg19(pretrained=True).features
@@ -179,7 +173,7 @@ class VGG19(Module):
             for param in self.parameters():
                 param.requires_grad = False
 
-    def forward(self, X):
+    def execute(self, X):
         h_relu1 = self.slice1(X)
         h_relu2 = self.slice2(h_relu1)
         h_relu3 = self.slice3(h_relu2)
