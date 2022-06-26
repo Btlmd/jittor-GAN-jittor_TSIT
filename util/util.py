@@ -161,6 +161,15 @@ def save_network(net, label, epoch, opt):
     save_filename = '%s_net_%s.pkl' % (epoch, label)
     save_path = os.path.join(opt.checkpoints_dir, opt.name, save_filename)
     jt.save(net.state_dict(), save_path)
+    if len(opt.remote):
+        try:
+            # print(f"scp {save_path} {opt.remote}")
+            os.system(f"scp {'-P ' + str(opt.remote_port)} {save_path} {opt.remote}")
+            print("successfully transferred ckpt, the local one will be removed")
+            os.remove(save_path)
+            print("local ckpt removed")
+        except Exception as e:
+            print(e)
 
 
 def load_network(net, label, epoch, opt):

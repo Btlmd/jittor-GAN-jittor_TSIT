@@ -12,7 +12,6 @@ import util.util as uu
 from tqdm import tqdm
 import pickle
 import jittor as jt
-
 from icecream import ic
 ic.disable()
 
@@ -36,6 +35,10 @@ iter_counter = IterationCounter(opt, len(dataloader))
 
 # create tool for visualization
 visualizer = Visualizer(opt)
+
+# if jt.mpi is None or jt.rank == 0:
+#     print("saving inital status")
+#     trainer.save('init')
 
 for epoch in tqdm(iter_counter.training_epochs()):
     iter_counter.record_epoch_start(epoch)
@@ -70,10 +73,11 @@ for epoch in tqdm(iter_counter.training_epochs()):
             visualizer.display_current_results(visuals, epoch, iter_counter.total_steps_so_far)
 
         if iter_counter.needs_saving():
-            print('saving the latest model (epoch %d, total_steps %d)' %
-                  (epoch, iter_counter.total_steps_so_far))
-            trainer.save('latest')
-            iter_counter.record_current_iter()
+            if jt.mpi is None or jt.rank == 0:
+                print('saving the latest model (epoch %d, total_steps %d)' %
+                      (epoch, iter_counter.total_steps_so_far))
+                trainer.save('latest')
+                iter_counter.record_current_iter()
 
     trainer.update_learning_rate(epoch)
     iter_counter.record_epoch_end()

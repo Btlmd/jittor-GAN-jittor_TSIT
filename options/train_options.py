@@ -35,4 +35,6 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--no_TTUR', action='store_true', help='Use TTUR training scheme')
         parser.add_argument('--lambda_kld', type=float, default=0.05)
         self.isTrain = True
+        parser.add_argument('--remote', type=str, default='')
+        parser.add_argument('--remote_port', type=int, default=22)
         return parser

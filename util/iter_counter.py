@@ -50,7 +50,7 @@ class IterationCounter():
         print('End of epoch %d / %d \t Time Taken: %d sec' %
               (self.current_epoch, self.total_epochs, self.time_per_epoch))
         if self.current_epoch % self.opt.save_epoch_freq == 0:
-            np.savetxt(self.iter_record_path, (self.current_epoch + 1, 0),
+            np.savetxt(self.iter_record_path, (self.current_epoch + 1, self.total_steps_so_far),
                        delimiter=',', fmt='%d')
             print('Saved current iteration count at %s.' % self.iter_record_path)
 

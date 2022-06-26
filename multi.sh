@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+unset LD_LIBRARY_PATH
+
 set -x
 
 NAME='sis_landscape'
@@ -27,11 +29,13 @@ mpirun -np 6 python3 train.py \
     --alpha 1.0 \
     --display_freq 20 \
     --save_epoch_freq 5 \
-    --niter 40 \
-    --niter_decay 20 \
-    --lr 0.001 \
+    --niter 90 \
+    --niter_decay 50 \
+    --lr 0.0012 \
     --lambda_vgg 20 \
-    --lambda_feat 10
-#    --which_epoch 38 \
-#    --continue_train
+    --lambda_feat 10 \
+    --which_epoch 30 \
+    --continue_train \
+    --remote "lambda@166.111.227.254:/work/lambda/e140" \
+    --remote_port 18010
 
