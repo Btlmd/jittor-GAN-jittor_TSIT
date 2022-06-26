@@ -37,4 +37,5 @@ class TrainOptions(BaseOptions):
         self.isTrain = True
         parser.add_argument('--remote', type=str, default='')
         parser.add_argument('--remote_port', type=int, default=22)
+        parser.add_argument('--resave', action='store_true', help='to load and save this model')
         return parser

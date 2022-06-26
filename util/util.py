@@ -160,10 +160,11 @@ def find_class_in_module(target_cls_name, module):
 def save_network(net, label, epoch, opt):
     save_filename = '%s_net_%s.pkl' % (epoch, label)
     save_path = os.path.join(opt.checkpoints_dir, opt.name, save_filename)
+    print("saving SD @", save_path)
     jt.save(net.state_dict(), save_path)
-    if len(opt.remote):
+    if len(opt.remote) and epoch != 'latest':
         try:
-            # print(f"scp {save_path} {opt.remote}")
+            print(f"scp {'-P ' + str(opt.remote_port)} {save_path} {opt.remote}")
             os.system(f"scp {'-P ' + str(opt.remote_port)} {save_path} {opt.remote}")
             print("successfully transferred ckpt, the local one will be removed")
             os.remove(save_path)

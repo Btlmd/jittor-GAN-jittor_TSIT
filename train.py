@@ -36,9 +36,10 @@ iter_counter = IterationCounter(opt, len(dataloader))
 # create tool for visualization
 visualizer = Visualizer(opt)
 
-# if jt.mpi is None or jt.rank == 0:
-#     print("saving inital status")
-#     trainer.save('init')
+if (jt.mpi is None or jt.rank == 0) and opt.resave:
+    print("Saving model")
+    trainer.save("resave")
+    exit(0)
 
 for epoch in tqdm(iter_counter.training_epochs()):
     iter_counter.record_epoch_start(epoch)
@@ -84,9 +85,10 @@ for epoch in tqdm(iter_counter.training_epochs()):
 
     if epoch % opt.save_epoch_freq == 0 or \
        epoch == iter_counter.total_epochs:
-        print('saving the model at the end of epoch %d, iters %d' %
-              (epoch, iter_counter.total_steps_so_far))
-        trainer.save('latest')
-        trainer.save(epoch)
+        if jt.mpi is None or jt.rank == 0:
+            print('saving the model at the end of epoch %d, iters %d' %
+                  (epoch, iter_counter.total_steps_so_far))
+            trainer.save('latest')
+            trainer.save(epoch)
 
 print('Training was successfully finished.')

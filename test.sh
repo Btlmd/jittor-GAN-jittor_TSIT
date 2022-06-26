@@ -7,10 +7,10 @@ TASK='SIS'
 DATA='landscape'
 CROOT='/work/data/data'
 SROOT='/work/data/data'
-CKPTROOT='./checkpoints'
-WORKER=4
+CKPTROOT='/work/lambda/sf115/jt2/checkpoints/'
+WORKER=8
 RESROOT='./results'
-EPOCH="57"
+EPOCH="145"
 
 python3 test.py \
     --name $NAME \
@@ -26,4 +26,5 @@ python3 test.py \
     --alpha 1.0 \
     --results_dir $RESROOT \
     --which_epoch $EPOCH
-#    --show_input
+
+7z a e$EPOCH.7z $RESROOT/$NAME/test_$EPOCH/*

@@ -29,12 +29,12 @@ mpirun -np 6 python3 train.py \
     --alpha 1.0 \
     --display_freq 20 \
     --save_epoch_freq 5 \
-    --niter 90 \
-    --niter_decay 50 \
-    --lr 0.0012 \
+    --niter 100 \
+    --niter_decay 100 \
+    --lr 0.0002 \
     --lambda_vgg 20 \
     --lambda_feat 10 \
-    --which_epoch 30 \
+    --which_epoch 115 \
     --continue_train \
     --remote "lambda@166.111.227.254:/work/lambda/e140" \
     --remote_port 18010

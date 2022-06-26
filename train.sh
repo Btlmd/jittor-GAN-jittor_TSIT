@@ -25,10 +25,13 @@ python3 train.py \
     --alpha 1.0 \
     --display_freq 20 \
     --save_epoch_freq 5 \
-    --niter 40 \
-    --niter_decay 20 \
+    --niter 100 \
+    --lr 0.0004 \
+    --niter_decay 100 \
     --lambda_vgg 20 \
-    --lambda_feat 10
-#    --which_epoch 38 \
-#    --continue_train
+    --lambda_feat 10 \
+    --which_epoch 115 \
+    --continue_train \
+    --remote "lambda@166.111.227.254:/work/lambda/sf115" \
+    --remote_port 18010
 

@@ -33,17 +33,6 @@ for i, data_i in enumerate(tqdm(dataloader)):
 
     img_path = data_i['cpath']
     for b in range(generated.shape[0]):
-        # print(i, 'process image... %s' % img_path[b])
-        if opt.show_input:
-            if opt.task == 'SIS':
-                visuals = OrderedDict([('input_label', data_i['label'][b]),
-                                       ('real_image', data_i['image'][b]),
-                                       ('synthesized_image', generated[b])])
-            else:
-                visuals = OrderedDict([('content', data_i['label'][b]),
-                                       ('style', data_i['image'][b]),
-                                       ('synthesized_image', generated[b])])
-        else:
-            visuals = OrderedDict([('synthesized_image', generated[b])])
+        visuals = OrderedDict([('synthesized_image', generated[b])])
         visualizer.save_images(img_dir, visuals, img_path[b:b + 1])
 
