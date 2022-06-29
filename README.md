@@ -18,35 +18,11 @@ We train and evaluate our model in the following environments.
 
 The total training time is estimated to be 65 ~ 70 hours and inference time is about several minutes.
 
-#### Training
-Models are trained on 
-- Ubuntu 20.04 LTS
-- python 3.8.13
-- jittor 1.3.4.15
-- Open MPI 4.0.3
-- CUDA 11.6
-
-with GPU
-- NVIDIA A100-SXM4-40GB
-
-Note that this environment failed the following unittests
-- `test_conv_transpose3d` (\__main\__.TestCudnnConvOp)
-- `test_conv3d` (\__main\__.TestCudnnConvOp)
-
-due to low precision.
-
-#### Evaluation
-Models are evaluated on 
-- Ubuntu 20.04 LTS
-- Python 3.7.13
-- jittor 1.3.4.9
-- CUDA 11.6
-
-with GPU
-- NVIDIA GeForce RTX 3090
-
-This environment shall pass the unittest of jittor successfully.
-
+| -                    | Training                                                                                                                                                           | Evaluation                                                                               |
+|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Environment          | Ubuntu 20.04 LTS<br /> Python 3.8.13<br />Jittor 1.3.4.15<br />CUDA 11.6<br />Open MPI 4.0.3                                                                       | Ubuntu 20.04 LTS<br />Python 3.7.13<br />Jittor 1.3.4.9<br />CUDA 11.6<br /> NO Open MPI |
+| GPU                  | NVIDIA A100-SXM4-40GB                                                                                                                                              | NVIDIA GeForce RTX 3090                                                                  |
+| Jittor<br />Unittest | Failed <br >`test_conv_transpose3d` <br />`test_conv3d`<br />due to low precision. | Pass                                                                                     |
 
 ### Packages
 
