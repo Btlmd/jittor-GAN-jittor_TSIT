@@ -1,6 +1,6 @@
 # Jittor Landscape Generation with TSIT
 
-![main result](./assets/img.png)
+![main result](assets/img.jpg)
 
 ## Introduction
 
@@ -9,7 +9,7 @@ This repository provides the implementation of Team **GAN!** in
 
 We implemented our model based on [TSIT](https://github.com/EndlessSora/TSIT) network architecture, and have achieved a score of 0.5189 in Track 1.
 
-Download our [results]().
+Download our [results](https://cloud.tsinghua.edu.cn/f/3d180eba21024b3bbe72/?dl=1).
 
 ## Install and Validate
 ### Environments
@@ -58,7 +58,7 @@ pip install -r requirements.txt
 
 We trained **two separate models** and **manually mixed their result** to form our final submission. To reproduce our result, you can
 
-1. Download our [pretrained models]() and unzip them to `./checkpoints` so that the directory looks like
+1. Download our [pretrained models](https://cloud.tsinghua.edu.cn/d/00b780fc19144de1980e/) and unzip them to `./checkpoints` so that the directory looks like
    ```bash
    .
    └──checkpoints
@@ -69,7 +69,7 @@ We trained **two separate models** and **manually mixed their result** to form o
           └── main_net_G.pkl
    ```
    Note that if *_net_D (Discriminator) is not necessary at evaluation.
-2. Download the [test dataset]().
+2. Download the [test dataset](https://cloud.tsinghua.edu.cn/f/c1618c846a7842da94e3/?dl=1).
 3. Config the path of dataset in `validation.sh`. It would evaluate the models on test dataset and call `selection.py` to reproduce our manual selection process.
 4. Run
    ```bash
@@ -85,7 +85,7 @@ We made no modifications to the images provided, but we manually constructed thr
 2. `Selection I`. Manually remove some images from `Total`, 8115 images left.
 3. `Selection II`. Based on `Selection I`, removed more images. Contains 7331 images.
 
-Download our [preprocessed training sets]()
+Download our [preprocessed training sets](https://cloud.tsinghua.edu.cn/d/6575d52e2b404e7895a6/)
 
 ## Training Scripts
 
@@ -102,12 +102,12 @@ bash ./multi.sh
 ### About our training process
 Our training for model `main` involves 4 phases
 
-| Phase | Epoch     | batch_size | training set   |
-|-------|-----------|------------|----------------|
-| I     | [1, 38]   | 2          | `Total`        |
-| II    | (38, 71]  | 30         | `Selection I`  |
-| III   | (71, 95]  | 5          | `Selection II` |
-| IV    | (95, 110] | 5          | `Selection I`  |
+| Phase | Epoch     | batch_size | training set   | learning rate |
+|-------|-----------|------------|----------------|---------------|
+| I     | [1, 38]   | 2          | `Total`        | 2e-4          |
+| II    | (38, 71]  | 30         | `Selection I`  | 1.2e-3        |
+| III   | (71, 95]  | 5          | `Selection II` | 4e-4|
+| IV    | (95, 110] | 5          | `Selection I`  |2e-3|
 
 This is **not** a carefully designed schedule. It is a compromise of our remaining time, access to calculation power and temporary thoughts.
 
