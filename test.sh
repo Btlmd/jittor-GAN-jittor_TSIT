@@ -5,12 +5,12 @@ set -x
 NAME='sis_landscape'
 TASK='SIS'
 DATA='landscape'
-CROOT='/work/data/data'
-SROOT='/work/data/data'
-CKPTROOT='/work/lambda/sf115/jt2/checkpoints/'
+CROOT='/dataset'
+SROOT='/dataset'
+CKPTROOT='./checkpoints'
 WORKER=8
 RESROOT='./results'
-EPOCH="145"
+EPOCH="39"
 
 python3 test.py \
     --name $NAME \

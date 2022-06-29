@@ -7,12 +7,12 @@ set -x
 NAME='sis_landscape'
 TASK='SIS'
 DATA='landscape'
-CROOT='/DATA2/gaoha/tsit/datasets/landscape'
-SROOT='/DATA2/gaoha/tsit/datasets/landscape'
+CROOT='/dataset'
+SROOT='/dataset'
 CKPTROOT='./checkpoints'
 WORKER=48
 
-export CUDA_VISIBLE_DEVICES=1,2,4,5,6,7
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5
 
 mpirun -np 6 python3 train.py \
     --name $NAME \
@@ -36,6 +36,6 @@ mpirun -np 6 python3 train.py \
     --lambda_feat 10 \
     --which_epoch 115 \
     --continue_train \
-    --remote "lambda@166.111.227.254:/work/lambda/e140" \
-    --remote_port 18010
+    --remote "user@166.111.227.254:/ckpts" \
+    --remote_port 22
 

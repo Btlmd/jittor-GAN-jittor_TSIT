@@ -1,73 +1,101 @@
-| 第二届计图挑战赛开源模板
+# Jittor Landscape Generation with TSIT
 
-# Jittor 草图生成风景比赛 baseline
-| 标题名称包含赛题、方法
+![result](./assets/img.png)
 
-![主要结果](https://s3.bmp.ovh/imgs/2022/04/19/440f015864695c92.png)
+## Introduction
 
-｜展示方法的流程特点或者主要结果等
+This repository provides the implementation of Team **GAN!** in
+- [Jittor AI Contest](https://www.educoder.net/competitions/index/Jittor-3) Track 1: Landscape Generation
 
-## 简介
-| 简单介绍项目背景、项目特点
+We implemented our model based on [TSIT](https://github.com/EndlessSora/TSIT) network architecture, and have achieved a score of xxx in Track 1.
 
-本项目包含了第二届计图挑战赛计图 - 草图生成风景比赛的代码实现。本项目的特点是：采用了 XX 方法对 YY 处理，取得了 ZZ 的效果。
+## Install and Validate
+### Environments
 
-## 安装 
-| 介绍基本的硬件需求、运行环境、依赖安装方法
+We train and evaluate our model in the following environments, the total training time is estimated to be 65 ~ 70 hours. Training schedule is listed on our [Assignment Report]()
 
-本项目可在 2 张 2080 上运行，训练时间约为 6 小时。
+#### Training
+Models are trained on 
+- Ubuntu 20.04 LTS
+- python 3.8.13
+- jittor 1.3.4.15
+- Open MPI 4.0.3
+- CUDA 11.6
 
-#### 运行环境
-- ubuntu 20.04 LTS
-- python >= 3.7
-- jittor >= 1.3.0
+with GPU
+- NVIDIA A100-SXM4-40GB
 
-#### 安装依赖
-执行以下命令安装 python 依赖
+Note that this environment failed the following unittests
+- `test_conv_transpose3d` (\__main\__.TestCudnnConvOp)
+- `test_conv3d` (\__main\__.TestCudnnConvOp)
+
+due to low precision.
+
+#### Evaluation
+Models are evaluated on 
+- Ubuntu 20.04 LTS
+- Python 3.7.13
+- jittor 1.3.4.9
+- CUDA 11.6
+
+with GPU
+- NVIDIA GeForce RTX 3090
+
+This environment shall pass the unittest of jittor successfully.
+
+
+### Packages
+
 ```
 pip install -r requirements.txt
 ```
 
-#### 预训练模型
-预训练模型模型下载地址为 https:abc.def.gh，下载后放入目录 `<root>/weights/` 下。
+### Testing Pretrained Models
 
-## 数据预处理
-| 介绍数据预处理方法，可选
+We trained two separate models and manually mixed their result to form our final submission. To reproduce our result, you can
 
-将数据下载解压到 `<root>/data` 下，执行以下命令对数据预处理：
+1. Download our pretrained models and unzip them to `./checkpoints` so that the directory looks like
+   ```bash
+   
+   ```
+
+2. Download the [test dataset]()
+3. Config the path of dataset in `validation.sh` and run
+   ```bash
+   bash validation.sh
+   ```
+5. The result will be compressed at `./result.zip`
+
+
+## Dataset Preprocessing
+
+We made no modifications to the images provided, but we manually constructed three subsets of the training set, i.e.
+
+1. `Total`. Containing the original 10,000 images.
+2. `Selection I`. Manually remove some images from `Total`, 8115 images left.
+3. `Selection II`. Based on `Selection II`, removed more images. Contains 7331 images.
+
+Download our [preprocessed training sets]()
+
+## Training
+
+Train on single GPU
 ```
-bash scripts/prepross.sh
+bash ./train.sh
 ```
 
-## 训练
-｜ 介绍模型训练的方法
-
-单卡训练可运行以下命令：
+Train on multiple GPUs.
 ```
-bash scripts/train.sh
+bash ./multi.sh
 ```
 
-多卡训练可以运行以下命令：
+## Inference
 ```
-bash scripts/train-multigpu.sh
-```
-
-## 推理
-｜ 介绍模型推理、测试、或者评估的方法
-
-生成测试集上的结果可以运行以下命令：
-
-```
-bash scripts/test.sh
+bash ./test.sh
 ```
 
-## 致谢
-| 对参考的论文、开源库予以致谢，可选
+## Acknowledgement
+166.111.227.254
+This implementation of this repo is based on TSIT. [[Code Base]](https://github.com/EndlessSora/TSIT)   [[Paper]](https://arxiv.org/abs/2007.12072)
 
-此项目基于论文  实现，部分代码参考了 [jittor-gan](https://github.com/Jittor/gan-jittor)。
-
-## 注意事项
-
-点击项目的“设置”，在Description一栏中添加项目描述，需要包含“jittor”字样。同时在Topics中需要添加jittor。
-
-![image-20220419164035639](https://s3.bmp.ovh/imgs/2022/04/19/6a3aa627eab5f159.png)
+Our spectral normalization uses the implementation of  [[PytorchAndJittor]](https://github.com/Lewis-Liang/PytorchAndJittor).
