@@ -1,8 +1,8 @@
 from shutil import copy, move
 from pathlib import Path
 
-main = Path("./results/test_main")
-aux = Path("./results/test_aux")
+main = Path("./results/sis_landscape/test_main")
+aux = Path("./results/sis_landscape/test_aux")
 
 aux_in = """1111255_67e9909adc_b.jpg
 12823872185_c45a4ab1f9_b.jpg

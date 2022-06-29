@@ -48,4 +48,4 @@ python3 test.py \
 
 python3 selection.py
 
-zip result.zip $RESROOT/$NAME/test_mixed/*
+zip -j result.zip $RESROOT/$NAME/test_mixed/*

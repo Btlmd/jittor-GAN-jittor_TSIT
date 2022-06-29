@@ -20,7 +20,6 @@ class BaseNetwork(nn.Module):
         for param in self.parameters():
             num_params += param.numel()
         print('Network [%s] was created. Total number of parameters: %.1f million. '
-              'To see the architecture, do print(network).'
               % (type(self).__name__, num_params / 1000000))
         print(self, file=open(f"{type(self).__name__}.arch", "w"))
 
