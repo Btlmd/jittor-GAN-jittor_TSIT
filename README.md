@@ -82,8 +82,8 @@ Our training for model `main` involves 4 phases
 |-------|-----------|------------|----------------|---------------|
 | I     | [1, 38]   | 2          | `Total`        | 2e-4          |
 | II    | (38, 71]  | 30         | `Selection I`  | 1.2e-3        |
-| III   | (71, 95]  | 5          | `Selection II` | 4e-4|
-| IV    | (95, 110] | 5          | `Selection I`  |2e-3|
+| III   | (71, 95]  | 5          | `Selection II` | 4e-4          |
+| IV    | (95, 110] | 5          | `Selection I`  | 2e-4          |
 
 This is **not** a carefully designed schedule. It is a compromise of our remaining time, access to calculation power and temporary thoughts.
 
