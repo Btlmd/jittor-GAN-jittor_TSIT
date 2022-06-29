@@ -11,6 +11,8 @@ We implemented our model based on [TSIT](https://github.com/EndlessSora/TSIT) ne
 
 Download our [results](https://cloud.tsinghua.edu.cn/f/3d180eba21024b3bbe72/?dl=1).
 
+Assignment report see `assets/REPORT.pdf`.
+
 ## Install and Validate
 ### Environments
 
